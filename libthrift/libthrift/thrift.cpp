@@ -1,4 +1,4 @@
-#include <libthrift/thrift.hxx>
+#include <libthrift/thrift.h>
 
 #include <ostream>
 #include <stdexcept>

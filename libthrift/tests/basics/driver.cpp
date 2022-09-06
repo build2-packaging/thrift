@@ -1,8 +1,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <libthrift/version.hxx>
-#include <libthrift/thrift.hxx>
+#include <libthrift/version.h>
+#include <libthrift/thrift.h>
 
 #undef NDEBUG
 #include <cassert>

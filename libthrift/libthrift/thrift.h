@@ -3,7 +3,7 @@
 #include <iosfwd>
 #include <string>
 
-#include <libthrift/export.hxx>
+#include <libthrift/export.h>
 
 namespace thrift
 {
