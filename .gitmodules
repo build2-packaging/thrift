@@ -1,0 +1,4 @@
+[submodule "upstream"]
+	path = upstream
+	url = https://github.com/apache/thrift.git
+	branch = v0.16.0
