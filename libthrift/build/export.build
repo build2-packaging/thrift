@@ -1,0 +1,6 @@
+$out_root/
+{
+  include libthrift/
+}
+
+export $out_root/libthrift/$import.target

@@ -1,0 +1,7 @@
+project = thrift
+
+using version
+using config
+using test
+using install
+using dist

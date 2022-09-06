@@ -1,0 +1,3 @@
+# libthrift
+
+C++ library

@@ -1,0 +1,6 @@
+: 1
+location: libthrift/
+:
+location: libthrift-tests/
+:
+location: thrift/
