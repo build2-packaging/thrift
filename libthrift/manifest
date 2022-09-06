@@ -10,5 +10,6 @@ email: helmesjo@gmail.com
 #build-error-email: helmesjo@gmail.com
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
-#depends: libhello ^1.0.0
+depends: * { libboost-numeric-conversion libboost-algorithm libboost-scope-exit libboost-locale libboost-tokenizer } ~1.78.0
+depends: libssl ^1.1.1+17 ? ($config.libthrift.with_openssl)
 tests: libthrift-tests == $

@@ -16,3 +16,6 @@ hxx{*}: cxx.importable = true
 # The test target for cross-testing (running tests under Wine, etc).
 #
 test.target = $cxx.target
+
+# Enable OpenSSL stuff
+config [bool] config.libthrift.with_openssl ?= true # NOTE: Passing on command line is ignored by manifest
