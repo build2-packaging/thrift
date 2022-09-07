@@ -122,19 +122,22 @@ if ($(config.$(project).with_zlib))
   lib{thriftz}: libul{thriftz}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftz_sources} $impl_libs $intf_libs lib{thrift}
 }
 
+print $version.project_id
+
 # Configuration
 ## Output to a 'thrift' folder, since includes expect this.
 $out_base/thrift/hxx{config}: in{config.h.in}
 {
   autoconf.flavor = cmake
+  autoconf.aliases = HAVE_AF_UNIX_H@HAVE_AFUNIX_H
 
-  PACKAGE = "thrift"
-  PACKAGE_BUGREPORT = "unset"
-  PACKAGE_NAME = "thrift"
-  PACKAGE_TARNAME = "unset"
-  PACKAGE_URL = "unset"
-  PACKAGE_VERSION = "0.16.0"
-  PACKAGE_STRING = "unset"
+  PACKAGE = \"thrift\"
+  PACKAGE_NAME = $PACKAGE
+  PACKAGE_VERSION = \""$version.major.$version.minor.$version.patch"\"
+  PACKAGE_BUGREPORT = \"unset\"
+  PACKAGE_TARNAME = \"unset\"
+  PACKAGE_URL = \"unset\"
+  PACKAGE_STRING = \"unset\"
 
   # TEMP
   BISON_USE_PARSER_H_EXTENSION = 0
@@ -147,8 +150,6 @@ $out_base/thrift/hxx{config}: in{config.h.in}
   HAVE_SCHED_H = 0
   HAVE_STRINGS_H = 0
   HAVE_STRERROR_R = 0
-  ## MISSPELLED
-  HAVE_AF_UNIX_H = 0
 }
 
 # Build options.
