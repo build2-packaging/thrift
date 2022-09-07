@@ -184,7 +184,7 @@ if ($cxx.target.system == 'mingw32')
 #
 lib{thrift}:
 {
-  cxx.export.poptions = "-I$out_root" "-I$src_root"
+  cxx.export.poptions = "-I$out_base" "-I$src_base/src"
   cxx.export.libs = $intf_libs $sys_libs
 }
 
