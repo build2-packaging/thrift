@@ -1,13 +1,27 @@
-#include <sstream>
-#include <stdexcept>
-
-#include <libthrift/thrift.h>
-
 #undef NDEBUG
 #include <cassert>
+#include <memory>
+#include <string>
+
+#include <thrift/config.h>
+#include <thrift/TOutput.h>
+
+std::string res;
+void print_func(const char* arg)
+{
+  res = arg;
+}
 
 int main ()
 {
-  using namespace std;
-  using namespace thrift;
+  assert(std::string(PACKAGE_NAME) == "thrift");
+
+  apache::thrift::TOutput out;
+  out.setOutputFunction(print_func);
+  res = "";
+  out.printf("test");
+
+  assert(res == "test");
+
+  return 0;
 }
