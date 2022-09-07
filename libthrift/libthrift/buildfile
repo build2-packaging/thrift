@@ -158,6 +158,15 @@ hxx{export}@./: cxx.importable = false
 
 # Build options.
 #
+
+# Unix support
+## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L119-L125
+if ($cxx.target.system != 'win32-msvc')
+{
+  sys_libs += -pthread
+}
+
+cxx.libs += $sys_libs
 cxx.poptions =+ "-I$out_base" "-I$src_base/src"
 
 {hbmia obja}{*}: cxx.poptions += -DTHRIFT_STATIC_DEFINE
@@ -168,7 +177,7 @@ cxx.poptions =+ "-I$out_base" "-I$src_base/src"
 lib{thrift}:
 {
   cxx.export.poptions = "-I$out_root" "-I$src_root"
-  cxx.export.libs = $intf_libs
+  cxx.export.libs = $intf_libs $sys_libs
 }
 
 # liba{thrift}: cxx.export.poptions += -DLIBTHRIFT_STATIC
