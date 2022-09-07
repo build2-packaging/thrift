@@ -169,8 +169,21 @@ if ($cxx.target.system != 'win32-msvc')
 cxx.libs += $sys_libs
 cxx.poptions =+ "-I$out_base" "-I$src_base/src"
 
-{hbmia obja}{*}: cxx.poptions += -DTHRIFT_STATIC_DEFINE
-{hbmis objs}{*}: cxx.poptions += -Dthrift_EXPORTS
+thrift_obj_files = $path.base($thrift_sources $thrift_sources $thrift_unix_sources $thrift_win_sources $thrift_pipe_sources $thrift_openssl_sources)
+{obja}{$thrift_obj_files}: cxx.poptions += -DTHRIFT_STATIC_DEFINE
+{objs}{$thrift_obj_files}: cxx.poptions += -Dthrift_EXPORTS
+
+# Export all symbols for windows
+## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/build/cmake/DefinePlatformSpecifc.cmake#L52-L56
+for lib : thrift thriftnb thriftz
+{
+  libs{$lib}: def{$lib}: include = ($cxx.target.system == 'win32-msvc')
+  def{$lib}: libul{$lib}
+}
+if ($cxx.target.system == 'mingw32')
+{
+  cxx.loptions += -Wl,--export-all-symbols
+}
 
 # Export options.
 #
