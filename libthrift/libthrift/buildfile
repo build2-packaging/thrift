@@ -151,8 +151,6 @@ $out_base/thrift/hxx{config}: in{config.h.in}
   HAVE_AF_UNIX_H = 0
 }
 
-hxx{export}@./: cxx.importable = false
-
 # Build options.
 #
 
