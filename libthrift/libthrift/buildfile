@@ -2,20 +2,29 @@ using autoconf
 
 intf_libs = # Interface dependencies.
 impl_libs = # Implementation dependencies.
-# Required
+
+# Required (build time)
 import impl_libs += libboost-numeric-conversion%lib{boost_numeric_conversion}
 import impl_libs += libboost-algorithm%lib{boost_algorithm}
 import impl_libs += libboost-scope-exit%lib{boost_scope_exit}
 import impl_libs += libboost-locale%lib{boost_locale}
 import impl_libs += libboost-tokenizer%lib{boost_tokenizer}
-# Optional
+
+# Optional (run time)
 if $(config.$(project).with_openssl)
 {
-  import impl_libs += libssl%lib{ssl}
+  import intf_libs += libssl%lib{ssl}
+}
+if $(config.$(project).with_libevent)
+{
+  import intf_libs += libevent%lib{event}
+}
+if $(config.$(project).with_zlib)
+{
+  import intf_libs += libz%lib{z}
 }
 
-# "thriftcpp_sources"
-## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L31-L63
+# See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L31-L63
 thrift_sources = \
    src/thrift/TApplicationException.cpp \
    src/thrift/TOutput.cpp \
@@ -47,9 +56,6 @@ thrift_sources = \
    src/thrift/server/TSimpleServer.cpp \
    src/thrift/server/TThreadPoolServer.cpp \
    src/thrift/server/TThreadedServer.cpp
-   # src/thrift/async/TConcurrentClientSyncInfo.h \
-
-# "thriftcpp_threads_sources"
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L127-L132
 thrift_sources += \
   src/thrift/concurrency/ThreadFactory.cpp \
@@ -57,58 +63,67 @@ thrift_sources += \
   src/thrift/concurrency/Monitor.cpp \
   src/thrift/concurrency/Mutex.cpp
 
+# See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L135-L140
+thriftnb_sources = \
+  src/thrift/server/TNonblockingServer.cpp \
+  src/thrift/transport/TNonblockingServerSocket.cpp \
+  src/thrift/async/TEvhttpServer.cpp \
+  src/thrift/async/TEvhttpClientChannel.cpp
+
+# See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L149-L156
+thriftz_sources = \
+  src/thrift/transport/TZlibTransport.cpp \
+  src/thrift/protocol/THeaderProtocol.cpp \
+  src/thrift/transport/THeaderTransport.cpp
+
 # Windows CE incompatible sources
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L65-L73
-if ($cxx.target.class != 'wince')
-{
-  thrift_sources += \
-    src/thrift/transport/TPipe.cpp \
-    src/thrift/transport/TPipeServer.cpp \
-    src/thrift/transport/TFileTransport.cpp
-}
+thrift_pipe_sources += \
+  src/thrift/transport/TPipe.cpp \
+  src/thrift/transport/TPipeServer.cpp \
+  src/thrift/transport/TFileTransport.cpp \
+  src/thrift/windows/OverlappedSubmissionThread.cpp
 
 # OS specific sources
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L76-L96
-if ($cxx.target.class == 'windows')
-{
-  thrift_sources += \
-    src/thrift/windows/TWinsockSingleton.cpp \
-    src/thrift/windows/SocketPair.cpp \
-    src/thrift/windows/GetTimeOfDay.cpp \
-    src/thrift/windows/WinFcntl.cpp
-
-  if ($cxx.target.class != 'wince')
-  {
-    thrift_sources += \
-      src/thrift/windows/OverlappedSubmissionThread.cpp
-  }
-}
-else
-{
-  thrift_sources += \
-    src/thrift/VirtualProfiling.cpp \
-    src/thrift/server/TServer.cpp
-}
+thrift_win_sources += \
+  src/thrift/windows/TWinsockSingleton.cpp \
+  src/thrift/windows/SocketPair.cpp \
+  src/thrift/windows/GetTimeOfDay.cpp \
+  src/thrift/windows/WinFcntl.cpp
+thrift_unix_sources += \
+  src/thrift/VirtualProfiling.cpp \
+  src/thrift/server/TServer.cpp
 
 # OpenSSL support
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L99-L117
-if $(config.$(project).with_openssl)
-{
-  thrift_sources += \
-    src/thrift/transport/TSSLSocket.cpp \
-    src/thrift/transport/TSSLServerSocket.cpp \
-    src/thrift/transport/TWebSocketServer.cpp
-    # src/thrift/transport/TWebSocketServer.h \
-}
+##      https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L143-L147
+thrift_openssl_sources += \
+  src/thrift/transport/TSSLSocket.cpp \
+  src/thrift/transport/TSSLServerSocket.cpp \
+  src/thrift/transport/TWebSocketServer.cpp
+thriftnb_openssl_sources += \
+  src/thrift/transport/TNonblockingSSLServerSocket.cpp
 
-# Android support
-## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L119-L125
-if ($cxx.target.class == 'unix')
-{
-  # TODO: Link pthread
-}
+./: lib{thrift}: libul{thrift}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thrift_sources} $impl_libs $intf_libs
+lib{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
+lib{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
+lib{thrift}: cxx{$thrift_pipe_sources}: include = ($cxx.target.class == 'windows' && $cxx.target.system != 'wince') # TODO: Fix check
+lib{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
 
-lib{thrift}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thrift_sources} $impl_libs $intf_libs
+# libevent support
+## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L168-L181
+if ($(config.$(project).with_libevent))
+{
+  lib{thriftnb}: libul{thriftnb}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftnb_sources} $impl_libs $intf_libs lib{thrift}
+  lib{thriftnb}: cxx{$thriftnb_openssl_sources}: include = $(config.$(project).with_openssl)
+}
+# zlib support
+## See: https://github.com/apache/thrift/blob/98be76fc033f1d66bcfd09d4a22b86e8061e89c2/lib/cpp/CMakeLists.txt#L183-L191
+if ($(config.$(project).with_zlib))
+{
+  lib{thriftz}: libul{thriftz}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftz_sources} $impl_libs $intf_libs lib{thrift}
+}
 
 # Configuration
 ## Output to a 'thrift' folder, since includes expect this.

@@ -17,5 +17,7 @@ hxx{*}: cxx.importable = true
 #
 test.target = $cxx.target
 
-# Enable OpenSSL stuff
-config [bool] config.libthrift.with_openssl ?= true # NOTE: Passing on command line is ignored by manifest
+# Enable additional features
+config [bool] config.libthrift.with_openssl ?= true
+config [bool] config.libthrift.with_libevent ?= false
+config [bool] config.libthrift.with_zlib ?= true
