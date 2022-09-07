@@ -122,8 +122,6 @@ if ($(config.$(project).with_zlib))
   lib{thriftz}: libul{thriftz}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftz_sources} $impl_libs $intf_libs lib{thrift}
 }
 
-print $version.project_id
-
 # Configuration
 ## Output to a 'thrift' folder, since includes expect this.
 $out_base/thrift/hxx{config}: in{config.h.in}
