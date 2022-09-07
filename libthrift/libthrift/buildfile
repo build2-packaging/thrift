@@ -62,6 +62,12 @@ thrift_sources += \
   src/thrift/concurrency/Thread.cpp \
   src/thrift/concurrency/Monitor.cpp \
   src/thrift/concurrency/Mutex.cpp
+## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L65-L73
+thrift_sources += \
+  src/thrift/transport/TPipe.cpp \
+  src/thrift/transport/TPipeServer.cpp \
+  src/thrift/transport/TFileTransport.cpp \
+  src/thrift/windows/OverlappedSubmissionThread.cpp
 
 # See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L135-L140
 thriftnb_sources = \
@@ -75,14 +81,6 @@ thriftz_sources = \
   src/thrift/transport/TZlibTransport.cpp \
   src/thrift/protocol/THeaderProtocol.cpp \
   src/thrift/transport/THeaderTransport.cpp
-
-# Windows CE incompatible sources
-## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L65-L73
-thrift_pipe_sources += \
-  src/thrift/transport/TPipe.cpp \
-  src/thrift/transport/TPipeServer.cpp \
-  src/thrift/transport/TFileTransport.cpp \
-  src/thrift/windows/OverlappedSubmissionThread.cpp
 
 # OS specific sources
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L76-L96
@@ -108,7 +106,6 @@ thriftnb_openssl_sources += \
 ./: lib{thrift}: libul{thrift}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thrift_sources} $impl_libs $intf_libs
 lib{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
 lib{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
-lib{thrift}: cxx{$thrift_pipe_sources}: include = ($cxx.target.class == 'windows' && $cxx.target.system != 'wince') # TODO: Fix check
 lib{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
 
 # libevent support
@@ -169,7 +166,7 @@ if ($cxx.target.system != 'win32-msvc')
 cxx.libs += $sys_libs
 cxx.poptions =+ "-I$out_base" "-I$src_base/src"
 
-thrift_obj_files = $path.base($thrift_sources $thrift_sources $thrift_unix_sources $thrift_win_sources $thrift_pipe_sources $thrift_openssl_sources)
+thrift_obj_files = $path.base($thrift_sources $thrift_sources $thrift_unix_sources $thrift_win_sources $thrift_openssl_sources)
 {obja}{$thrift_obj_files}: cxx.poptions += -DTHRIFT_STATIC_DEFINE
 {objs}{$thrift_obj_files}: cxx.poptions += -Dthrift_EXPORTS
 
