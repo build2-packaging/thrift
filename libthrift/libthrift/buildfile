@@ -10,6 +10,7 @@ import impl_libs += libboost-scope-exit%lib{boost_scope_exit}
 import impl_libs += libboost-locale%lib{boost_locale}
 import impl_libs += libboost-tokenizer%lib{boost_tokenizer}
 
+# TODO: Change these to "optional imports" ('import?')?
 # Optional (run time)
 if $(config.$(project).with_openssl)
 {
