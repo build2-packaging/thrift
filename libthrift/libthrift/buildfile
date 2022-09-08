@@ -138,8 +138,6 @@ $out_base/thrift/hxx{config}: in{config.h.in}
   PACKAGE_URL = \"unset\"
   PACKAGE_STRING = \"unset\"
 
-  # TEMP
-  BISON_USE_PARSER_H_EXTENSION = 0
   ## Missing from autoconf
   AI_ADDRCONFIG = 1
   STRERROR_R_CHAR_P = 0
