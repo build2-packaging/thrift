@@ -8,11 +8,20 @@ if ($cxx.target.class == 'windows')
   sys_libs += ole32.lib
 }
 
+compiler_core =\
+  src/thrift/common.cc \
+  src/thrift/generate/t_generator.cc \
+  src/thrift/parse/t_typedef.cc \
+  src/thrift/parse/parse.cc \
+  src/thrift/version.h
+
+compiler_source =\
+  src/thrift/main.cc \
+  src/thrift/audit/t_audit.cpp
+
 # NOTE: 0.16.0 fails with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
-./: exe{thrift}: {hxx cxx}{src/**} thrift/hxx{thrifty} thrift/cxx{thrifty thriftl} $libs testscript
-# Some source files have .cpp extension
-exe{thrift}: cxx{**.cpp}
+./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source} thrift/hxx{thrifty} thrift/cxx{thrifty thriftl} $libs testscript
 
 # Generate thrifty.h & thrifty.cc
 <thrift/{hxx cxx}{thrifty}>: file{src/thrift/thrifty.yy} $byacc
