@@ -67,8 +67,7 @@ thrift_sources += \
 thrift_sources += \
   src/thrift/transport/TPipe.cpp \
   src/thrift/transport/TPipeServer.cpp \
-  src/thrift/transport/TFileTransport.cpp \
-  src/thrift/windows/OverlappedSubmissionThread.cpp
+  src/thrift/transport/TFileTransport.cpp
 
 # See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L135-L140
 thriftnb_sources = \
@@ -89,7 +88,8 @@ thrift_win_sources += \
   src/thrift/windows/TWinsockSingleton.cpp \
   src/thrift/windows/SocketPair.cpp \
   src/thrift/windows/GetTimeOfDay.cpp \
-  src/thrift/windows/WinFcntl.cpp
+  src/thrift/windows/WinFcntl.cpp \
+  src/thrift/windows/OverlappedSubmissionThread.cpp
 thrift_unix_sources += \
   src/thrift/VirtualProfiling.cpp \
   src/thrift/server/TServer.cpp
