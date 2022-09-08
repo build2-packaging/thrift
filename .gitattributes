@@ -19,3 +19,4 @@
 #*.png binary
 
 libthrift/libthrift/src/thrift symlink=dir
+thrift/thrift/src symlink=dir

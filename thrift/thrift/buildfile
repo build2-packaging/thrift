@@ -1,6 +1,34 @@
 libs =
-#import libs += libhello%lib{hello}
+import libs += libthrift%lib{thrift}
+import! byacc = byacc%exe{byacc}
+import! reflex = reflex%exe{reflex}
 
-exe{thrift}: {hxx ixx txx cxx}{**} $libs testscript
+if ($cxx.target.class == 'windows')
+{
+  sys_libs += ole32.lib
+}
 
-cxx.poptions =+ "-I$out_root" "-I$src_root"
+# NOTE: 0.16.0 fails with C++20
+##      See: https://github.com/apache/thrift/pull/2543
+./: exe{thrift}: {hxx cxx}{src/**} thrift/hxx{thrifty} thrift/cxx{thrifty thriftl} $libs testscript
+# Some source files have .cpp extension
+exe{thrift}: cxx{**.cpp}
+
+# Generate thrifty.h & thrifty.cc
+<thrift/{hxx cxx}{thrifty}>: file{src/thrift/thrifty.yy} $byacc
+{{
+  echo $path($>)
+  diag byacc -l -y "--defines=$path($>[0])" -o $path($>[0]) $path($<[0])
+  $byacc -l -y "--defines=$path($>[0])" -o $path($>[1]) $path($<[0])
+}}
+
+# Generate thriftl.cc
+thrift/cxx{thriftl}: file{src/thrift/thriftl.ll} $reflex
+{{
+  diag reflex -L -o $path($>) $path($<[0])
+  $reflex -L -o $path($>) $path($<[0])
+}}
+
+cxx.libs += $sys_libs
+cxx.poptions =+ "-I$out_base" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
+cxx.loptions =+ /FORCE:MULTIPLE
