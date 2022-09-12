@@ -21,10 +21,10 @@ compiler_source =\
 
 # NOTE: 0.16.0 fails with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
-./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source} thrift/hxx{thrifty} thrift/cxx{thrifty thriftl} $libs testscript
+./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source} hxx{thrifty} cxx{thrifty thriftl} $libs testscript
 
 # Generate thrifty.h & thrifty.cc
-<thrift/{hxx cxx}{thrifty}>: file{src/thrift/thrifty.yy} $byacc
+<{hxx cxx}{thrifty}>: file{src/thrift/thrifty.yy} $byacc
 {{
   echo $path($>)
   diag byacc -l -y "--defines=$path($>[0])" -o $path($>[0]) $path($<[0])
@@ -32,7 +32,7 @@ compiler_source =\
 }}
 
 # Generate thriftl.cc
-thrift/cxx{thriftl}: file{src/thrift/thriftl.ll} $reflex
+cxx{thriftl}: file{src/thrift/thriftl.ll} $reflex
 {{
   diag reflex -L -o $path($>) $path($<[0])
   $reflex -L -o $path($>) $path($<[0])
