@@ -39,4 +39,4 @@ cxx{thriftl}: file{src/thrift/thriftl.ll} $reflex
 }}
 
 cxx.libs += $sys_libs
-cxx.poptions =+ "-I$out_base" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
+cxx.poptions =+ "-I$out_root" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
