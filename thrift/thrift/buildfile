@@ -10,7 +10,6 @@ if ($cxx.target.class == 'windows')
 
 compiler_core =\
   src/thrift/common.cc \
-  src/thrift/generate/t_generator.cc \
   src/thrift/parse/t_typedef.cc \
   src/thrift/parse/parse.cc \
   src/thrift/version.h
@@ -19,9 +18,12 @@ compiler_source =\
   src/thrift/main.cc \
   src/thrift/audit/t_audit.cpp
 
+libul{parse}: hxx{thrifty} cxx{thrifty thriftl}
+
 # NOTE: 0.16.0 fails with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
-./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source} hxx{thrifty} cxx{thrifty thriftl} $libs testscript
+./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source src/thrift/generate/*} \
+  libul{parse} $libs testscript
 testscript{*}: version = "$(version.major).$(version.minor).$(version.patch)"
 
 # Generate thrifty.h & thrifty.cc
