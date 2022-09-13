@@ -27,7 +27,6 @@ testscript{*}: version = "$(version.major).$(version.minor).$(version.patch)"
 # Generate thrifty.h & thrifty.cc
 <{hxx cxx}{thrifty}>: file{src/thrift/thrifty.yy} $byacc
 {{
-  echo $path($>)
   diag byacc -l -y "--defines=$path($>[0])" -o $path($>[0]) $path($<[0])
   $byacc -l -y "--defines=$path($>[0])" -o $path($>[1]) $path($<[0])
 }}
