@@ -19,5 +19,5 @@ test.target = $cxx.target
 
 # Enable additional features
 config [bool] config.libthrift.with_openssl ?= true
-config [bool] config.libthrift.with_libevent ?= false
+config [bool] config.libthrift.with_libevent ?= true
 config [bool] config.libthrift.with_zlib ?= true
