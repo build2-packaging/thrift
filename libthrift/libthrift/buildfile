@@ -157,6 +157,7 @@ $out_base/thrift/hxx{config}: in{config.h.in}
   HAVE_SCHED_H = 0
   HAVE_STRINGS_H = 0
   HAVE_STRERROR_R = 0
+  HAVE_INTTYPES_H = 1
 }
 
 # Build options.
