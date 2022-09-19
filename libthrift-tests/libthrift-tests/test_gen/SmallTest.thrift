@@ -1,0 +1,1 @@
+../../../upstream/test/SmallTest.thrift

@@ -1,0 +1,1 @@
+../../../upstream/test/FullCamelTest.thrift

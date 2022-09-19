@@ -1,0 +1,1 @@
+../../../upstream/test/JavaTypes.thrift
