@@ -10,4 +10,4 @@ email: helmesjo@gmail.com
 #build-error-email: helmesjo@gmail.com
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
-#depends: libhello ^1.0.0
+depends: { libboost-filesystem libboost-thread libboost-test libboost-chrono libboost-iterator libboost-move } ~1.78.0
