@@ -111,10 +111,10 @@ thrift_openssl_sources += \
 thriftnb_openssl_sources += \
   src/thrift/transport/TNonblockingSSLServerSocket.cpp
 
-./: lib{thrift}: libul{thrift}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thrift_sources} $impl_libs $intf_libs
-lib{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
-lib{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
-lib{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
+lib{thrift}: libul{thrift}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thrift_sources} $impl_libs $intf_libs
+lib{thrift}: libul{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
+lib{thrift}: libul{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
+lib{thrift}: libul{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
 
 # libevent support
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L168-L181
@@ -122,7 +122,7 @@ lib{thriftnb}: libul{thriftnb}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftnb
 {
   include = $(config.$(project).with_libevent)
 }
-lib{thriftnb}: cxx{$thriftnb_openssl_sources}:
+lib{thriftnb}: libul{thriftnb}: cxx{$thriftnb_openssl_sources}:
 {
   include = ($(config.$(project).with_libevent) && $(config.$(project).with_openssl))
 }
