@@ -143,10 +143,10 @@ $out_base/thrift/hxx{config}: in{config.h.in}
   PACKAGE = \"thrift\"
   PACKAGE_NAME = $PACKAGE
   PACKAGE_VERSION = \""$version.major.$version.minor.$version.patch"\"
-  PACKAGE_BUGREPORT = \"unset\"
-  PACKAGE_TARNAME = \"unset\"
-  PACKAGE_URL = \"unset\"
-  PACKAGE_STRING = \"unset\"
+  PACKAGE_BUGREPORT = 0
+  PACKAGE_TARNAME = 0
+  PACKAGE_URL = 0
+  PACKAGE_STRING = \""thrift $version.major.$version.minor.$version.patch"\"
 }
 
 # Build options.
