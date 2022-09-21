@@ -18,13 +18,11 @@ if $(config.$(project).with_openssl)
 }
 if $(config.$(project).with_libevent)
 {
+  import intf_libs += libevent%lib{event_core}
+  import intf_libs += libevent%lib{event_extra}
   if $(config.$(project).with_openssl)
   {
     import intf_libs += libevent%lib{event_openssl}
-  }
-  else
-  {
-    import intf_libs += libevent%lib{event_extra}
   }
 }
 if $(config.$(project).with_zlib)
