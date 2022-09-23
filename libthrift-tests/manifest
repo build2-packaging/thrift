@@ -1,6 +1,6 @@
 : 1
 name: libthrift-tests
-version: 0.1.0-a.0.z
+version: 0.16.0-a.0.z
 project: thrift
 summary: libthrift-tests C++ executable
 license: other: proprietary ; Not free/open source.
