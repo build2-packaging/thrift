@@ -158,7 +158,7 @@ UnitTest_SOURCES = \
   src/TServerSocketTest.cpp \
   src/TServerTransportTest.cpp \
   src/ThrifttReadCheckTests.cpp
-./: exe{UnitTests}: cxx{$UnitTest_SOURCES} lib{testgencpp} lib{testgencpp} $libs $boost_libs $boost_test
+./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} lib{testgencpp} $libs $boost_libs $boost_test
 
 # NOTE: These tests appears to be broken/require a certain environment.
 #TInterruptTest_SOURCES = \
