@@ -201,3 +201,9 @@ else
   install         = include/thrift/
   install.subdirs = true
 }
+
+thrift/hxx{config}:
+{
+  install         = include/thrift/
+  install.subdirs = false
+}
