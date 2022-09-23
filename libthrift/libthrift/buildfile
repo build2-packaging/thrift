@@ -109,14 +109,14 @@ thrift_openssl_sources += \
 thriftnb_openssl_sources += \
   src/thrift/transport/TNonblockingSSLServerSocket.cpp
 
-lib{thrift}: libul{thrift}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thrift_sources} $impl_libs $intf_libs
+lib{thrift}: libul{thrift}: thrift/hxx{config} hxx{src/**} cxx{$thrift_sources} $impl_libs $intf_libs
 lib{thrift}: libul{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
 lib{thrift}: libul{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
 lib{thrift}: libul{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
 
 # libevent support
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L168-L181
-lib{thriftnb}: libul{thriftnb}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftnb_sources} $impl_libs $intf_libs lib{thrift}:
+lib{thriftnb}: libul{thriftnb}: thrift/hxx{config} cxx{$thriftnb_sources} $impl_libs $intf_libs lib{thrift}:
 {
   include = $(config.$(project).with_libevent)
 }
@@ -126,7 +126,7 @@ lib{thriftnb}: libul{thriftnb}: cxx{$thriftnb_openssl_sources}:
 }
 # zlib support
 ## See: https://github.com/apache/thrift/blob/98be76fc033f1d66bcfd09d4a22b86e8061e89c2/lib/cpp/CMakeLists.txt#L183-L191
-lib{thriftz}: libul{thriftz}: hxx{thrift/config} hxx{src_cpp/**} cxx{$thriftz_sources} $impl_libs $intf_libs lib{thrift}:
+lib{thriftz}: libul{thriftz}: thrift/hxx{config} cxx{$thriftz_sources} $impl_libs $intf_libs lib{thrift}:
 {
   include = $(config.$(project).with_zlib)
 }
@@ -193,10 +193,10 @@ if $version.pre_release
 else
   lib{thrift}: bin.lib.version = "-$version.major.$version.minor"
 
-# Install into the libthrift/ subdirectory of, say, /usr/include/
+# Install into the thrift/ subdirectory of, say, /usr/include/
 # recreating subdirectories.
 #
-{hxx ixx txx}{src_cpp/thrift/**}:
+{hxx ixx txx}{src/thrift/**}:
 {
   install         = include/thrift/
   install.subdirs = true
