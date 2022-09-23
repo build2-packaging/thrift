@@ -20,7 +20,7 @@ compiler_source =\
 
 libul{parse}: hxx{thrifty} cxx{thrifty thriftl}
 
-# NOTE: 0.16.0 fails with C++20
+# NOTE: 0.16.0 fails on MSVC with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
 ./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source src/thrift/generate/*} \
   libul{parse} $libs testscript
