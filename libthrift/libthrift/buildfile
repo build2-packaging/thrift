@@ -188,10 +188,13 @@ lib{thrift}:
 # in place of another pre-release or the final version. See the version module
 # for details on the version.* variable values.
 #
-if $version.pre_release
-  lib{thrift}: bin.lib.version = "-$version.project_id"
-else
-  lib{thrift}: bin.lib.version = "-$version.major.$version.minor"
+for lib : thrift thriftnb thriftz
+{
+  if $version.pre_release
+    lib{$lib}: bin.lib.version = "-$version.project_id"
+  else
+    lib{$lib}: bin.lib.version = "-$version.major.$version.minor"
+}
 
 # Install into the thrift/ subdirectory of, say, /usr/include/
 # recreating subdirectories.
