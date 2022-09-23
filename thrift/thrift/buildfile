@@ -1,5 +1,3 @@
-libs =
-import libs += libthrift%lib{thrift}
 import! byacc = byacc%exe{byacc}
 import! reflex = reflex%exe{reflex}
 
@@ -23,7 +21,7 @@ libul{parse}: hxx{thrifty} cxx{thrifty thriftl}
 # NOTE: 0.16.0 fails on MSVC with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
 ./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source src/thrift/generate/*} \
-  libul{parse} $libs testscript
+  libul{parse} testscript
 testscript{*}: version = "$(version.major).$(version.minor).$(version.patch)"
 
 # Generate thrifty.h & thrifty.cc
