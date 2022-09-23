@@ -3,6 +3,4 @@ $out_root/
   include libthrift/
 }
 
-export $out_root/libthrift/lib{thrift}
-export $out_root/libthrift/lib{thriftnb}
-export $out_root/libthrift/lib{thriftz}
+export $out_root/libthrift/$import.target
