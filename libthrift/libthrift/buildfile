@@ -109,7 +109,7 @@ thrift_openssl_sources += \
 thriftnb_openssl_sources += \
   src/thrift/transport/TNonblockingSSLServerSocket.cpp
 
-./: lib{thrift}: libul{thrift}: thrift/hxx{config} hxx{src/**} cxx{$thrift_sources} $impl_libs $intf_libs
+./: lib{thrift}: libul{thrift}: thrift/hxx{config} {hxx txx}{src/**} cxx{$thrift_sources} $impl_libs $intf_libs
 lib{thrift}: libul{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
 lib{thrift}: libul{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
 lib{thrift}: libul{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
@@ -196,7 +196,7 @@ else
 # Install into the thrift/ subdirectory of, say, /usr/include/
 # recreating subdirectories.
 #
-{hxx ixx txx}{src/thrift/**}:
+{hxx txx}{src/thrift/**}:
 {
   install         = include/thrift/
   install.subdirs = true

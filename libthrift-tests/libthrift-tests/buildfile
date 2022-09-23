@@ -180,9 +180,8 @@ UnitTest_SOURCES = \
 
 AllProtocolsTest_SOURCES = \
   src/AllProtocolTests.cpp
-AllProtocolsTest_HEADERS = \
-  src/GenericHelpers.h
-./: exe{AllProtocolsTest}: cxx{$AllProtocolsTest_SOURCES} hxx{$AllProtocolsTest_HEADERS} $libs $boost_libs $boost_test
+  
+./: exe{AllProtocolsTest}: cxx{$AllProtocolsTest_SOURCES} hxx{src/GenericHelpers.h} txx{src/AllProtocolTests.tcc} $libs $boost_libs $boost_test
 
 ./: exe{JSONProtoTest}: src/cxx{JSONProtoTest} lib{testgencpp} $libs $boost_libs $boost_test
 ./: exe{OptionalRequiredTest}: src/cxx{OptionalRequiredTest} lib{testgencpp} $libs $boost_libs $boost_test
