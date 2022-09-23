@@ -9,4 +9,3 @@ depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: * byacc == 20210808
 depends: * reflex == 20210808+1
-tests: libthrift-tests == $
