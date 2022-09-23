@@ -2,12 +2,10 @@
 name: libthrift-tests
 version: 0.16.0-a.0.z
 project: thrift
-summary: libthrift-tests C++ executable
-license: other: proprietary ; Not free/open source.
+summary: libthrift tests
+license: Apache-2.0
 description-file: README.md
-url: https://example.org/thrift
-email: helmesjo@gmail.com
-#build-error-email: helmesjo@gmail.com
+url: https://thrift.apache.org/
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: { libboost-filesystem libboost-thread libboost-test libboost-chrono libboost-iterator libboost-move } ~1.78.0

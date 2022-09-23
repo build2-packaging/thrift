@@ -1,12 +1,10 @@
 : 1
 name: thrift
 version: 0.16.0-a.0.z
-summary: thrift C++ executable
-license: other: proprietary ; Not free/open source.
+summary: thrift compiler
+license: Apache-2.0
 description-file: README.md
-url: https://example.org/thrift
-email: helmesjo@gmail.com
-#build-error-email: helmesjo@gmail.com
+url: https://thrift.apache.org/
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: * byacc == 20210808

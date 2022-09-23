@@ -1,1 +1,1 @@
-# thrift
+./upstream/README.md

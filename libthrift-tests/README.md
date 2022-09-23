@@ -1,3 +1,0 @@
-# libthrift-tests
-
-C++ executable

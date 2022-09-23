@@ -1,3 +1,1 @@
-# libthrift
-
-C++ library
+../upstream/README.md

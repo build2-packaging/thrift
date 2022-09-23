@@ -3,11 +3,9 @@ name: libthrift
 version: 0.16.0-a.0.z
 project: thrift
 summary: thrift C++ library
-license: other: proprietary ; Not free/open source.
+license: Apache-2.0
 description-file: README.md
-url: https://example.org/thrift
-email: helmesjo@gmail.com
-#build-error-email: helmesjo@gmail.com
+url: https://thrift.apache.org/
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: { libboost-numeric-conversion libboost-algorithm libboost-scope-exit libboost-locale libboost-tokenizer libboost-format libboost-foreach } ~1.78.0

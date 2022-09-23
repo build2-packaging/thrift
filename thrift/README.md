@@ -1,3 +1,1 @@
-# thrift
-
-C++ executable
+../upstream/README.md
