@@ -10,7 +10,6 @@ compiler_core =\
   src/thrift/common.cc \
   src/thrift/parse/t_typedef.cc \
   src/thrift/parse/parse.cc \
-  src/thrift/version.h
 
 compiler_source =\
   src/thrift/main.cc \
@@ -20,7 +19,7 @@ libul{parse}: hxx{thrifty} cxx{thrifty thriftl}
 
 # NOTE: 0.16.0 fails on MSVC with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
-./: exe{thrift}: {hxx cxx}{$compiler_core $compiler_source src/thrift/generate/*} \
+./: exe{thrift}: hxx{src/thrift/**} cxx{$compiler_core $compiler_source src/thrift/generate/*} \
   libul{parse} testscript
 testscript{*}: version = "$(version.major).$(version.minor).$(version.patch)"
 
