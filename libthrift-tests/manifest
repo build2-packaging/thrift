@@ -13,8 +13,9 @@ depends: { \
   libboost-chrono \
   libboost-filesystem \
   libboost-foreach \
+  libboost-format \
   libboost-iterator \
   libboost-move \
   libboost-test \
   libboost-thread \
-  } ~1.78.0
+} ~1.78.0

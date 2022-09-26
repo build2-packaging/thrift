@@ -8,8 +8,8 @@ import boost_libs += libboost-foreach%lib{boost_foreach}
 import boost_libs += libboost-format%lib{boost_format}
 import boost_libs += libboost-iterator%lib{boost_iterator}
 import boost_libs += libboost-move%lib{boost_move}
-import boost_libs += libboost-thread%lib{boost_thread}
 import boost_test += libboost-test%lib{boost_test}
+import boost_libs += libboost-thread%lib{boost_thread}
 
 generated_HEADERS = \
   AnnotationTest_types.h \
