@@ -1,11 +1,6 @@
 import! byacc = byacc%exe{byacc}
 import! reflex = reflex%exe{reflex}
 
-if ($cxx.target.class == 'windows')
-{
-  sys_libs += ole32.lib
-}
-
 compiler_core =\
   src/thrift/common.cc \
   src/thrift/parse/t_typedef.cc \
@@ -36,6 +31,14 @@ cxx{thriftl}: file{src/thrift/thriftl.ll} $reflex
   diag reflex -L -o $path($>) $path($<[0])
   $reflex -L -o $path($>) $path($<[0])
 }}
+
+switch $cxx.target.class, $cxx.target.system
+{
+  case 'windows', 'mingw32'
+    sys_libs += -lole32
+  case 'windows'
+    sys_libs += ole32.lib
+}
 
 cxx.libs += $sys_libs
 cxx.poptions =+ "-I$out_root" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
