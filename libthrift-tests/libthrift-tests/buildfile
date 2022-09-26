@@ -159,6 +159,9 @@ UnitTest_SOURCES = \
   src/TServerTransportTest.cpp \
   src/ThrifttReadCheckTests.cpp
 ./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} lib{testgencpp} $libs $boost_libs $boost_test
+{
+  test.arguments=--run_test="!locale_de_DE_floating_point_to_string"
+}
 
 # NOTE: These tests appears to be broken/require a certain environment.
 #TInterruptTest_SOURCES = \
