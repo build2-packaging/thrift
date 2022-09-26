@@ -8,7 +8,15 @@ description-file: README.md
 url: https://thrift.apache.org/
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
-depends: { libboost-numeric-conversion libboost-algorithm libboost-scope-exit libboost-locale libboost-tokenizer libboost-format libboost-foreach } ~1.78.0
+depends: { \
+  libboost-algorithm \
+  libboost-foreach \
+  libboost-format \
+  libboost-locale \
+  libboost-numeric-conversion \
+  libboost-scope-exit \
+  libboost-tokenizer \
+} ~1.78.0
 depends: libssl ^1.1.1+17 ? ($config.libthrift.with_openssl)
 depends: libevent
 tests: libthrift-tests == $

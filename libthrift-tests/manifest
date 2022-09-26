@@ -9,4 +9,12 @@ url: https://thrift.apache.org/
 depends: * build2 >= 0.15.0
 depends: * bpkg >= 0.15.0
 depends: * thrift == $
-depends: { libboost-filesystem libboost-thread libboost-test libboost-chrono libboost-iterator libboost-move } ~1.78.0
+depends: { \
+  libboost-chrono \
+  libboost-filesystem \
+  libboost-foreach \
+  libboost-iterator \
+  libboost-move \
+  libboost-test \
+  libboost-thread \
+  } ~1.78.0
