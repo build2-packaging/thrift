@@ -167,6 +167,17 @@ if ($cxx.target.system != 'win32-msvc')
   sys_libs += -pthread
 }
 
+# FreeBSD workaround
+## EAI_NODATA is obsolete and no longer defined in <netdb.h>, but thrift expects it to be.
+## See https://github.com/freebsd/freebsd-src/blob/f2963b530e17c5eff66bc5f4860b1cd224d3d033/lib/libc/net/gai_strerror.c#L47-L65
+if(($cxx.target.system == 'freebsd'))
+{
+  obj{src/thrift/transport/TSocket}:
+  {
+      cxx.coptions += -DEAI_NODATA=7
+  }
+}
+
 cxx.libs += $sys_libs
 cxx.poptions =+ "-I$out_base" "-I$src_base/src"
 
