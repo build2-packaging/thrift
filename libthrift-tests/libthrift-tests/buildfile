@@ -160,7 +160,8 @@ UnitTest_SOURCES = \
   src/ThrifttReadCheckTests.cpp
 ./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} lib{testgencpp} $libs $boost_libs $boost_test
 {
-  test.arguments=--run_test="!ToStringTest/locale_de_DE_floating_point_to_string"
+  # Disable locale tests since build agent may not have it installed.
+  test.arguments=--run_test="!ToStringTest/locale_*"
 }
 
 # NOTE: These tests appears to be broken/require a certain environment.
