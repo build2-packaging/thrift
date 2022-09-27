@@ -11,7 +11,11 @@ cxx{*}: extension = cc
 
 # Assume headers are importable unless stated otherwise.
 #
-hxx{*}: cxx.importable = true
+hxx{*}:
+{
+  cxx.importable = false
+  install = false
+}
 
 # The test target for cross-testing (running tests under Wine, etc).
 #
