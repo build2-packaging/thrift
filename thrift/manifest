@@ -5,7 +5,7 @@ summary: thrift compiler
 license: Apache-2.0
 description-file: README.md
 url: https://thrift.apache.org/
-depends: * build2 >= 0.15.0
-depends: * bpkg >= 0.15.0
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 depends: * byacc == 20210808
 depends: * reflex == 20210808+1
