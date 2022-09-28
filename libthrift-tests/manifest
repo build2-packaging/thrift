@@ -19,3 +19,4 @@ depends: { \
   libboost-test \
   libboost-thread \
 } ~1.78.0
+requires: c++11

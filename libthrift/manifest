@@ -21,3 +21,4 @@ depends: libevent         ? ($config.libthrift.with_libevent)
 depends: libssl ^1.1.1+17 ? ($config.libthrift.with_openssl)
 depends: libz ^1.2.1200+2 ? ($config.libthrift.with_zlib)
 tests: libthrift-tests == $
+requires: c++11

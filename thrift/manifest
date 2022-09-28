@@ -9,3 +9,4 @@ depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 depends: * byacc == 20210808
 depends: * reflex == 20210808+1
+requires: c++11
