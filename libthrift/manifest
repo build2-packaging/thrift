@@ -2,10 +2,11 @@
 name: libthrift
 version: 0.16.0
 project: thrift
-summary: thrift C++ library
+summary: Apache Thrift C++ library
 license: Apache-2.0
 description-file: README.md
 url: https://thrift.apache.org/
+package-url: https://github.com/build2-packaging/thrift
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 depends: { \
@@ -17,8 +18,8 @@ depends: { \
   libboost-scope-exit \
   libboost-tokenizer \
 } ~1.78.0
-depends: libevent         ? ($config.libthrift.with_libevent)
-depends: libssl ^1.1.1+17 ? ($config.libthrift.with_openssl)
-depends: libz ^1.2.1200+2 ? ($config.libthrift.with_zlib)
+depends: libevent         ? ($config.libthrift.libevent)
+depends: libssl ^1.1.1    ? ($config.libthrift.openssl)
+depends: libz ^1.2.1200   ? ($config.libthrift.zlib)
 tests: libthrift-tests == $
 requires: c++11

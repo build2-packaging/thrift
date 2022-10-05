@@ -1,44 +1,68 @@
-import! byacc = byacc%exe{byacc}
-import! reflex = reflex%exe{reflex}
+# Import with metadata for more accurate change tracking.
+#
+import! [metadata] byacc = byacc%exe{byacc}
+import! [metadata] reflex = reflex%exe{reflex}
 
 compiler_core =\
   src/thrift/common.cc \
   src/thrift/parse/t_typedef.cc \
   src/thrift/parse/parse.cc \
 
+# Note: src/thrift/main.cc is included by our main.cc (metadata handling).
+#
+compiler_source_adhoc =\
+  src/thrift/main.cc
 compiler_source =\
-  src/thrift/main.cc \
   src/thrift/audit/t_audit.cpp
-
-libul{parse}: hxx{thrifty} cxx{thrifty thriftl}
 
 # NOTE: 0.16.0 fails on MSVC with C++20
 ##      See: https://github.com/apache/thrift/pull/2543
-./: exe{thrift}: hxx{src/thrift/**} cxx{$compiler_core $compiler_source src/thrift/generate/*} \
-  libul{parse} testscript
-testscript{*}: version = "$(version.major).$(version.minor).$(version.patch)"
+exe{thrift}: hxx{src/thrift/**} \
+             cxx{$compiler_core $compiler_source src/thrift/generate/*} \
+             {hxx cxx}{thrifty} cxx{thriftl}
+
+exe{thrift}: cxx{$compiler_source_adhoc}: include = adhoc
+exe{thrift}: cxx{main}
+
+# Target metadata, see also --build2-metadata in main.cc.
+#
+# Note that thrift does not appear to query any environment variables.
+#
+exe{thrift}:
+{
+  export.metadata = 1 thrift
+  thrift.name = [string] thrift
+  thrift.version  = [string] $version
+  thrift.checksum = [string] $version
+}
+
+exe{thrift}: testscript
+{
+  version = "$(version.major).$(version.minor).$(version.patch)"
+}
 
 # Generate thrifty.h & thrifty.cc
 <{hxx cxx}{thrifty}>: file{src/thrift/thrifty.yy} $byacc
 {{
-  diag byacc -l -y "--defines=$path($>[0])" -o $path($>[0]) $path($<[0])
+  diag yacc ($<[0])
   $byacc -l -y "--defines=$path($>[0])" -o $path($>[1]) $path($<[0])
 }}
 
 # Generate thriftl.cc
-cxx{thriftl}: file{src/thrift/thriftl.ll} $reflex
+cxx{thriftl}: file{src/thrift/thriftl.ll} hxx{thrifty} $reflex
 {{
-  diag reflex -L -o $path($>) $path($<[0])
+  diag lex ($<[0])
   $reflex -L -o $path($>) $path($<[0])
 }}
+
+cxx.poptions =+ "-I$out_root" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
+
+obje{main}: cxx.poptions += "-DTHRIFT_VERSION_BUILD2=\"$version\""
 
 switch $cxx.target.class, $cxx.target.system
 {
   case 'windows', 'mingw32'
-    sys_libs += -lole32
+    cxx.libs += -lole32
   case 'windows'
-    sys_libs += ole32.lib
+    cxx.libs += ole32.lib
 }
-
-cxx.libs += $sys_libs
-cxx.poptions =+ "-I$out_root" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION

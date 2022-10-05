@@ -1,6 +1,6 @@
-libs =
-import libs += libthrift%lib{thrift}
-import thrift = thrift%exe{thrift}
+import! [metadata] thrift = thrift%exe{thrift}
+
+import libs = libthrift%lib{thrift}
 
 import boost_libs += libboost-chrono%lib{boost_chrono}
 import boost_libs += libboost-filesystem%lib{boost_filesystem}
@@ -8,8 +8,9 @@ import boost_libs += libboost-foreach%lib{boost_foreach}
 import boost_libs += libboost-format%lib{boost_format}
 import boost_libs += libboost-iterator%lib{boost_iterator}
 import boost_libs += libboost-move%lib{boost_move}
-import boost_test += libboost-test%lib{boost_test}
 import boost_libs += libboost-thread%lib{boost_thread}
+
+import boost_test += libboost-test%lib{boost_test}
 
 generated_HEADERS = \
   AnnotationTest_types.h \
@@ -70,32 +71,52 @@ generated_SOURCES = \
   proc_types.cpp
 
 # Generate all thrift source files
+#
+# Note that thrift output file set depends on the contents on the .thrift
+# file. So handling this with an ad hoc pattern rule will not be trivial.
+#
+define thrift: file
+thrift{*}: extension = thrift
+
 <gen-cpp/cxx{$generated_SOURCES} gen-cpp/hxx{$generated_HEADERS}>: \
-  file{test_gen/AnnotationTest.thrift} \
-  file{test_gen/DebugProtoTest.thrift} \
-  file{test_gen/EnumTest.thrift} \
-  file{test_gen/TypedefTest.thrift} \
-  file{test_gen/OptionalRequiredTest.thrift} \
-  file{test_gen/Recursive.thrift} \
-  file{test_gen/StressTest.thrift} \
-  file{test_gen/ThriftTest.thrift} \
-  file{src/OneWayTest.thrift} \
-  file{src/processor/proc.thrift} \
+  thrift{test_gen/AnnotationTest.thrift} \
+  thrift{test_gen/DebugProtoTest.thrift} \
+  thrift{test_gen/EnumTest.thrift} \
+  thrift{test_gen/TypedefTest.thrift} \
+  thrift{test_gen/OptionalRequiredTest.thrift} \
+  thrift{test_gen/Recursive.thrift} \
+  thrift{test_gen/StressTest.thrift} \
+  thrift{test_gen/ThriftTest.thrift} \
+  thrift{src/OneWayTest.thrift} \
+  thrift{src/processor/proc.thrift} \
   $thrift
 {{
-    diag "Generate thrift test sources"
-    # TODO: Loop over input files instead of listing explicitly, though
-    ##      ad hoc recipes currently does not support this (v0.15.0).
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[0])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[1])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[2])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[3])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[4])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[5])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[6])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[7])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[8])
-    $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[9])
+
+# @@ TODO: re-enable once build2 issues are resolved.
+#
+#\
+  inputs = $filter($<, thrift)
+
+  diag thrift $inputs
+
+  for i: $inputs
+    $thrift -o "$out_base" --gen cpp:no_skeleton $path($i)
+  end
+#\
+
+  diag "Generate thrift test sources"
+  # TODO: Loop over input files instead of listing explicitly, though
+  ##      ad hoc recipes currently does not support this (v0.15.0).
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[0])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[1])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[2])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[3])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[4])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[5])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[6])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[7])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[8])
+  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[9])
 }}
 
 testgencpp_SOURCES = \
@@ -158,7 +179,8 @@ UnitTest_SOURCES = \
   src/TServerSocketTest.cpp \
   src/TServerTransportTest.cpp \
   src/ThrifttReadCheckTests.cpp
-./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} lib{testgencpp} $libs $boost_libs $boost_test
+
+./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} $libs $boost_libs $boost_test
 {
   # Disable locale tests since build agent may not have it installed.
   test.arguments=--run_test="!ToStringTest/locale_*"
@@ -176,21 +198,21 @@ UnitTest_SOURCES = \
 #}
 #./: exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
 
-./: exe{TServerIntegrationTest}: src/cxx{TServerIntegrationTest} $libs $boost_libs lib{testgencpp_cob} $boost_test
-./: exe{AnnotationTest}: src/cxx{AnnotationTest} $libs $boost_libs lib{testgencpp} $boost_test
-./: exe{EnumTest}: src/cxx{EnumTest} $libs $boost_libs lib{testgencpp} $boost_test
+./: exe{TServerIntegrationTest}: src/cxx{TServerIntegrationTest} lib{testgencpp_cob} $libs $boost_libs $boost_test
+./: exe{AnnotationTest}: src/cxx{AnnotationTest} lib{testgencpp} $libs $boost_libs $boost_test
+./: exe{EnumTest}: src/cxx{EnumTest} lib{testgencpp} $libs $boost_libs $boost_test
 ./: exe{TFDTransportTest}: src/cxx{TFDTransportTest} $libs $boost_libs $boost_test
 ./: exe{TPipedTransportTest}: src/cxx{TPipedTransportTest} $libs $boost_libs $boost_test
 
 AllProtocolsTest_SOURCES = \
   src/AllProtocolTests.cpp
-  
+
 ./: exe{AllProtocolsTest}: cxx{$AllProtocolsTest_SOURCES} hxx{src/GenericHelpers.h} txx{src/AllProtocolTests.tcc} $libs $boost_libs $boost_test
 
 ./: exe{JSONProtoTest}: src/cxx{JSONProtoTest} lib{testgencpp} $libs $boost_libs $boost_test
 ./: exe{OptionalRequiredTest}: src/cxx{OptionalRequiredTest} lib{testgencpp} $libs $boost_libs $boost_test
-./: exe{RecursiveTest}: src/cxx{RecursiveTest} lib{testgencpp} $libs $boost_libs  $boost_test
-./: exe{SpecializationTest}: src/cxx{SpecializationTest} $libs $boost_libs lib{testgencpp} $boost_test
+./: exe{RecursiveTest}: src/cxx{RecursiveTest} lib{testgencpp} $libs $boost_libs $boost_test
+./: exe{SpecializationTest}: src/cxx{SpecializationTest} lib{testgencpp} $libs $boost_libs $boost_test
 
 concurrency_test_SOURCES = \
   src/concurrency/Tests.cpp
@@ -198,6 +220,7 @@ concurrency_test_HEADERS = \
   src/concurrency/ThreadFactoryTests.h \
   src/concurrency/ThreadManagerTests.h \
   src/concurrency/TimerManagerTests.h
+
 ./: exe{concurrency_test}: cxx{$concurrency_test_SOURCES} hxx{$concurrency_test_HEADERS} $libs $boost_libs
 
 link_test_SOURCES = \
@@ -206,19 +229,21 @@ link_test_SOURCES = \
   src/link/TemplatedService2.cpp
 link_test_HEADERS = \
   gen-cpp/ParentService.h
+
 ./: exe{link_test}: cxx{$link_test_SOURCES} hxx{$link_test_HEADERS} $libs $boost_libs
 
 # TODO: Add remaining (conditional) tests depending on presence of libevent, openssl etc.
 
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
 # https://github.com/apache/thrift/blob/v0.16.0/lib/cpp/test/CMakeLists.txt#L91-L95
-if($cxx.class == 'msvc')
+if ($cxx.class == 'msvc')
 {
   cxx.coptions += /wd4503
 }
 
 # https://github.com/apache/thrift/blob/v0.16.0/lib/cpp/test/CMakeLists.txt#L113-L115
-if($cxx.target.class != 'macos' && $cxx.target.system != 'win32-msvc' && $cxx.target.system != 'mingw32')
+if ($cxx.target.class != 'macos' && $cxx.target.system != 'win32-msvc' && $cxx.target.system != 'mingw32')
 {
   cxx.loptions += -lrt
 }
-cxx.poptions =+ "-I$out_base" "-I$src_base"

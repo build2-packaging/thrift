@@ -1,9 +1,6 @@
-# file      : build/export.build
-# license   : thrift License; see xyz
-
 $out_root/
 {
   include thrift/
 }
 
-export $out_root/thrift/exe{thrift}
+export $out_root/thrift/$import.target

@@ -1,31 +1,39 @@
+# Configuration.
+#
+openssl  = $config.libthrift.openssl
+libevent = $config.libthrift.libevent
+zlib     = $config.libthrift.zlib
+
 using autoconf
 
 intf_libs = # Interface dependencies.
 impl_libs = # Implementation dependencies.
 
-# Required (build time)
+# Required.
 import impl_libs += libboost-numeric-conversion%lib{boost_numeric_conversion}
 import impl_libs += libboost-algorithm%lib{boost_algorithm}
 import impl_libs += libboost-scope-exit%lib{boost_scope_exit}
 import impl_libs += libboost-locale%lib{boost_locale}
 import impl_libs += libboost-tokenizer%lib{boost_tokenizer}
 
-# TODO: Change these to "optional imports" ('import?')?
-# Optional (run time)
-if $(config.$(project).with_openssl)
+# Optional.
+#
+# @@ Are these all really interface dependencies?
+#
+if $openssl
 {
   import intf_libs += libssl%lib{ssl}
 }
-if $(config.$(project).with_libevent)
+if $libevent
 {
   import intf_libs += libevent%lib{event_core}
   import intf_libs += libevent%lib{event_extra}
-  if $(config.$(project).with_openssl)
+  if $openssl
   {
     import intf_libs += libevent%lib{event_openssl}
   }
 }
-if $(config.$(project).with_zlib)
+if $zlib
 {
   import intf_libs += libz%lib{z}
 }
@@ -109,31 +117,43 @@ thrift_openssl_sources += \
 thriftnb_openssl_sources += \
   src/thrift/transport/TNonblockingSSLServerSocket.cpp
 
-./: lib{thrift}: libul{thrift}: thrift/hxx{config} {hxx txx}{src/**} cxx{$thrift_sources} $impl_libs $intf_libs
-lib{thrift}: libul{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
-lib{thrift}: libul{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
-lib{thrift}: libul{thrift}: cxx{$thrift_openssl_sources}: include = $(config.$(project).with_openssl)
+thrift_all_sources = $thrift_sources \
+                     $thrift_win_sources \
+                     $thrift_unix_sources \
+                     $thrift_openssl_sources
+
+./: lib{thrift}
+./: lib{thriftnb}: include = $libevent
+./: lib{thriftz}:  include = $zlib
+
+lib{thrift}: libul{thrift}
+libul{thrift}: thrift/hxx{config} {hxx txx}{src/**} cxx{$thrift_sources} $impl_libs $intf_libs
+libul{thrift}: cxx{$thrift_unix_sources}: include = ($cxx.target.class != 'windows')
+libul{thrift}: cxx{$thrift_win_sources}: include = ($cxx.target.class == 'windows')
+libul{thrift}: cxx{$thrift_openssl_sources}: include = $openssl
 
 # libevent support
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L168-L181
-./: lib{thriftnb}: libul{thriftnb}: thrift/hxx{config} cxx{$thriftnb_sources} $impl_libs $intf_libs lib{thrift}:
-{
-  include = $(config.$(project).with_libevent)
-}
-lib{thriftnb}: libul{thriftnb}: cxx{$thriftnb_openssl_sources}:
-{
-  include = ($(config.$(project).with_libevent) && $(config.$(project).with_openssl))
-}
+lib{thriftnb}: libul{thriftnb}
+libul{thriftnb}: thrift/hxx{config} cxx{$thriftnb_sources} lib{thrift} $impl_libs $intf_libs
+libul{thriftnb}: cxx{$thriftnb_openssl_sources}: include = $openssl
+
 # zlib support
 ## See: https://github.com/apache/thrift/blob/98be76fc033f1d66bcfd09d4a22b86e8061e89c2/lib/cpp/CMakeLists.txt#L183-L191
-./: lib{thriftz}: libul{thriftz}: thrift/hxx{config} cxx{$thriftz_sources} $impl_libs $intf_libs lib{thrift}:
+lib{thriftz}: libul{thriftz}
+libul{thriftz}: thrift/hxx{config} cxx{$thriftz_sources} lib{thrift} $impl_libs $intf_libs
+
+# Export all symbols for windows (MSVC part)
+## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/build/cmake/DefinePlatformSpecifc.cmake#L52-L56
+for lib : thrift thriftnb thriftz
 {
-  include = $(config.$(project).with_zlib)
+  libs{$lib}: def{$lib}: include = ($cxx.target.system == 'win32-msvc')
+  def{$lib}: libul{$lib}
 }
 
 # Configuration
 ## Output to a 'thrift' folder, since includes expect this.
-$out_base/thrift/hxx{config}: in{config.h.in}
+thrift/hxx{config}: in{config.h.in}
 {
   autoconf.flavor = cmake
   autoconf.aliases = HAVE_AF_UNIX_H@HAVE_AFUNIX_H
@@ -149,6 +169,36 @@ $out_base/thrift/hxx{config}: in{config.h.in}
 
 # Build options.
 #
+cxx.poptions =+ "-I$out_base" "-I$src_base/src"
+
+# FreeBSD workaround
+## EAI_NODATA is obsolete and no longer defined in <netdb.h>, but thrift expects it to be.
+## See https://github.com/freebsd/freebsd-src/blob/f2963b530e17c5eff66bc5f4860b1cd224d3d033/lib/libc/net/gai_strerror.c#L47-L65
+if ($cxx.target.system == 'freebsd')
+{
+  obj{src/thrift/transport/TSocket}:
+  {
+    cxx.poptions += -DEAI_NODATA=7
+  }
+}
+
+# The library use the "export all symbols" mechanism for functions and the
+# explicit dllexport/dllimport for a few global variables (which cannot be
+# auto-imported) in the main library; see thrift_export.h for details. Note
+# that at least as of 0.16.0, this support is MSVC-only.
+#
+thrift_all_objs = $path.base($thrift_all_sources)
+obja{$thrift_all_objs}: cxx.poptions += -DTHRIFT_STATIC_DEFINE
+objs{$thrift_all_objs}: cxx.poptions += -Dthrift_EXPORTS
+
+# Export all symbols for windows (MinGW part).
+#
+if ($cxx.target.system == 'mingw32')
+{
+  cxx.loptions += -Wl,--export-all-symbols
+}
+
+sys_libs =
 
 # Windows
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L163-L165
@@ -167,43 +217,19 @@ if ($cxx.target.system != 'win32-msvc')
   sys_libs += -pthread
 }
 
-# FreeBSD workaround
-## EAI_NODATA is obsolete and no longer defined in <netdb.h>, but thrift expects it to be.
-## See https://github.com/freebsd/freebsd-src/blob/f2963b530e17c5eff66bc5f4860b1cd224d3d033/lib/libc/net/gai_strerror.c#L47-L65
-if(($cxx.target.system == 'freebsd'))
-{
-  obj{src/thrift/transport/TSocket}:
-  {
-      cxx.coptions += -DEAI_NODATA=7
-  }
-}
-
 cxx.libs += $sys_libs
-cxx.poptions =+ "-I$out_base" "-I$src_base/src"
-
-thrift_obj_files = $path.base($thrift_sources $thrift_sources $thrift_unix_sources $thrift_win_sources $thrift_openssl_sources)
-{obja}{$thrift_obj_files}: cxx.poptions += -DTHRIFT_STATIC_DEFINE
-{objs}{$thrift_obj_files}: cxx.poptions += -Dthrift_EXPORTS
-
-# Export all symbols for windows
-## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/build/cmake/DefinePlatformSpecifc.cmake#L52-L56
-for lib : thrift thriftnb thriftz
-{
-  libs{$lib}: def{$lib}: include = ($cxx.target.system == 'win32-msvc')
-  def{$lib}: libul{$lib}
-}
-if ($cxx.target.system == 'mingw32')
-{
-  cxx.loptions += -Wl,--export-all-symbols
-}
 
 # Export options.
+#
+# @@ Do we really need to export all sys_libs?
 #
 lib{thrift}:
 {
   cxx.export.poptions = "-I$out_base" "-I$src_base/src"
   cxx.export.libs = $intf_libs $sys_libs
 }
+
+lib{thriftnb thriftz}: cxx.export.libs = lib{thrift}
 
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version. See the version module
@@ -220,14 +246,8 @@ for lib : thrift thriftnb thriftz
 # Install into the thrift/ subdirectory of, say, /usr/include/
 # recreating subdirectories.
 #
-{hxx txx}{src/thrift/**}:
+src/thrift/{hxx txx}{**} thrift/hxx{config}:
 {
   install         = include/thrift/
   install.subdirs = true
-}
-
-thrift/hxx{config}:
-{
-  install         = include/thrift/
-  install.subdirs = false
 }

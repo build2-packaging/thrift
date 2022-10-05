@@ -1,5 +1,14 @@
-libthrift-tests
-
-# Testscript output directory (can be symlink).
-#
-test-libthrift-tests
+AllProtocolsTest
+AnnotationTest
+Benchmark
+concurrency_test
+EnumTest
+JSONProtoTest
+link_test
+OptionalRequiredTest
+RecursiveTest
+SpecializationTest
+TFDTransportTest
+TPipedTransportTest
+TServerIntegrationTest
+UnitTests
