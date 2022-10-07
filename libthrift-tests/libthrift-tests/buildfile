@@ -313,17 +313,18 @@ UnitTest_SOURCES = \
 }
 
 TInterruptTest_SOURCES = \
- src/TSocketInterruptTest.cpp \
+ src/TSocketInterruptTest.cpp
+TInterruptTest_ssl_SOURCES = \
  src/TSSLSocketInterruptTest.cpp
 TInterruptTest_win_SOURCES =\
  src/TPipeInterruptTest.cpp
 
-./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libthrift $boost_libs $boost_test keys/cert{$test_certificates}
 {
    test.arguments = -- "$keys_out"
 }
-./: exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
-./: exe{TInterruptTest}: keys/cert{$test_certificates}
+exe{TInterruptTest}: cxx{$TInterruptTest_ssl_SOURCES}: include = ($($libthrift: libthrift.openssl))
+exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
 
 ./: exe{TServerIntegrationTest}: src/cxx{TServerIntegrationTest} lib{testgencpp_cob} $libthrift $boost_libs $boost_test
 ./: exe{AnnotationTest}: src/cxx{AnnotationTest} lib{testgencpp} $libthrift $boost_libs $boost_test
@@ -378,31 +379,29 @@ processor_test_HEADERS = \
 TNonblockingServerTest_SOURCES = \
   src/TNonblockingServerTest.cpp
 
-./: exe{TNonblockingServerTest}: cxx{$TNonblockingServerTest_SOURCES} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
-  include = $($libthrift: libthrift.libevent)
+./: exe{TNonblockingServerTest}: include = $($libthrift: libthrift.libevent)
+exe{TNonblockingServerTest}: cxx{$TNonblockingServerTest_SOURCES} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
 
 TNonblockingSSLServerTest_SOURCES = \
-src/TNonblockingSSLServerTest.cpp
+  src/TNonblockingSSLServerTest.cpp
 
-./: exe{TNonblockingSSLServerTest}: cxx{$TNonblockingSSLServerTest_SOURCES} $libthriftnb lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
-  include = ($($libthrift: libthrift.libevent) && $($libthrift: libthrift.openssl))
-exe{TNonblockingSSLServerTest}:
+./: exe{TNonblockingSSLServerTest}: include = ($($libthrift: libthrift.libevent) && $($libthrift: libthrift.openssl))
+exe{TNonblockingSSLServerTest}: cxx{$TNonblockingSSLServerTest_SOURCES} $libthriftnb lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
 {
     test.arguments = -- "$keys_out"
 }
 
 OpenSSLManualInitTest_SOURCES = \
-src/OpenSSLManualInitTest.cpp
+  src/OpenSSLManualInitTest.cpp
 
-./: exe{OpenSSLManualInitTest}: cxx{$OpenSSLManualInitTest_SOURCES} $libthrift $boost_libs $boost_test: \
-  include = $($libthrift: libthrift.openssl)
+./: exe{OpenSSLManualInitTest}: include = $($libthrift: libthrift.openssl)
+exe{OpenSSLManualInitTest}: cxx{$OpenSSLManualInitTest_SOURCES} $libthrift $boost_libs $boost_test
 
 SecurityTest_SOURCES = \
-src/SecurityTest.cpp
+  src/SecurityTest.cpp
 
-./: exe{SecurityTest}: cxx{$SecurityTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test: \
-  include = $($libthrift: libthrift.openssl)
-exe{SecurityTest}:
+./: exe{SecurityTest}: include = $($libthrift: libthrift.openssl)
+exe{SecurityTest}: cxx{$SecurityTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test
 {
     test.arguments = -- "$keys_out"
 }
@@ -410,9 +409,8 @@ exe{SecurityTest}:
 SecurityFromBufferTest_SOURCES = \
   src/SecurityFromBufferTest.cpp
 
-./: exe{SecurityFromBufferTest}: cxx{$SecurityFromBufferTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test: \
-  include = $($libthrift: libthrift.openssl)
-exe{SecurityFromBufferTest}:
+./: exe{SecurityFromBufferTest}: include = $($libthrift: libthrift.openssl)
+exe{SecurityFromBufferTest}: cxx{$SecurityFromBufferTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test
 {
     test.arguments = -- "$keys_out"
 }
@@ -420,14 +418,14 @@ exe{SecurityFromBufferTest}:
 ZlibTest_SOURCES = \
   src/ZlibTest.cpp
 
-./: exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test: \
-  include = $($libthrift: libthrift.libz)
+./: exe{ZlibTest}: include = $($libthrift: libthrift.zlib)
+exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test  
 
 TransportTest_SOURCES = \
   src/TransportTest.cpp
 
-./: exe{TransportTest}: cxx{$TransportTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test: \
-  include = $($libthrift: libthrift.libz)
+./: exe{TransportTest}: include = $($libthrift: libthrift.zlib)
+exe{TransportTest}: cxx{$TransportTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
