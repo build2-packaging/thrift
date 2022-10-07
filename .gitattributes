@@ -20,5 +20,4 @@
 
 libthrift/libthrift/src/thrift symlink=dir
 libthrift-test/libthrift-test/src symlink=dir
-libthrift-test/libthrift-test/keys symlink=dir
 thrift/thrift/src symlink=dir
