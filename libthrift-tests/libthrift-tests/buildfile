@@ -312,33 +312,34 @@ UnitTest_SOURCES = \
   test.arguments=--run_test="!ToStringTest/locale_*"
 }
 
-# NOTE: These tests appears to be broken/require a certain environment.
-#TInterruptTest_SOURCES = \
-#  src/TSocketInterruptTest.cpp \
-#  src/TSSLSocketInterruptTest.cpp
-#TInterruptTest_win_SOURCES =\
-#  src/TPipeInterruptTest.cpp
-#./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libs $boost_libs $boost_test
-#{
-#    test.arguments = "$src_base/keys"
-#}
-#./: exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
+TInterruptTest_SOURCES = \
+ src/TSocketInterruptTest.cpp \
+ src/TSSLSocketInterruptTest.cpp
+TInterruptTest_win_SOURCES =\
+ src/TPipeInterruptTest.cpp
 
-./: exe{TServerIntegrationTest}: src/cxx{TServerIntegrationTest} lib{testgencpp_cob} $libs $boost_libs $boost_test
-./: exe{AnnotationTest}: src/cxx{AnnotationTest} lib{testgencpp} $libs $boost_libs $boost_test
-./: exe{EnumTest}: src/cxx{EnumTest} lib{testgencpp} $libs $boost_libs $boost_test
-./: exe{TFDTransportTest}: src/cxx{TFDTransportTest} $libs $boost_libs $boost_test
-./: exe{TPipedTransportTest}: src/cxx{TPipedTransportTest} $libs $boost_libs $boost_test
+./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libthrift $boost_libs $boost_test
+{
+   test.arguments = -- "$keys_out"
+}
+./: exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
+./: exe{TInterruptTest}: keys/cert{$test_certificates}
+
+./: exe{TServerIntegrationTest}: src/cxx{TServerIntegrationTest} lib{testgencpp_cob} $libthrift $boost_libs $boost_test
+./: exe{AnnotationTest}: src/cxx{AnnotationTest} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{EnumTest}: src/cxx{EnumTest} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{TFDTransportTest}: src/cxx{TFDTransportTest} $libthrift $boost_libs $boost_test
+./: exe{TPipedTransportTest}: src/cxx{TPipedTransportTest} $libthrift $boost_libs $boost_test
 
 AllProtocolsTest_SOURCES = \
   src/AllProtocolTests.cpp
 
-./: exe{AllProtocolsTest}: cxx{$AllProtocolsTest_SOURCES} hxx{src/GenericHelpers.h} txx{src/AllProtocolTests.tcc} $libs $boost_libs $boost_test
+./: exe{AllProtocolsTest}: cxx{$AllProtocolsTest_SOURCES} hxx{src/GenericHelpers.h} txx{src/AllProtocolTests.tcc} $libthrift $boost_libs $boost_test
 
-./: exe{JSONProtoTest}: src/cxx{JSONProtoTest} lib{testgencpp} $libs $boost_libs $boost_test
-./: exe{OptionalRequiredTest}: src/cxx{OptionalRequiredTest} lib{testgencpp} $libs $boost_libs $boost_test
-./: exe{RecursiveTest}: src/cxx{RecursiveTest} lib{testgencpp} $libs $boost_libs $boost_test
-./: exe{SpecializationTest}: src/cxx{SpecializationTest} lib{testgencpp} $libs $boost_libs $boost_test
+./: exe{JSONProtoTest}: src/cxx{JSONProtoTest} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{OptionalRequiredTest}: src/cxx{OptionalRequiredTest} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{RecursiveTest}: src/cxx{RecursiveTest} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{SpecializationTest}: src/cxx{SpecializationTest} lib{testgencpp} $libthrift $boost_libs $boost_test
 
 concurrency_test_SOURCES = \
   src/concurrency/Tests.cpp
@@ -347,7 +348,7 @@ concurrency_test_HEADERS = \
   src/concurrency/ThreadManagerTests.h \
   src/concurrency/TimerManagerTests.h
 
-./: exe{concurrency_test}: cxx{$concurrency_test_SOURCES} hxx{$concurrency_test_HEADERS} $libs $boost_libs
+./: exe{concurrency_test}: cxx{$concurrency_test_SOURCES} hxx{$concurrency_test_HEADERS} $libthrift $boost_libs
 
 link_test_SOURCES = \
   src/link/LinkTest.cpp \
@@ -356,9 +357,77 @@ link_test_SOURCES = \
 link_test_HEADERS = \
   gen-cpp/ParentService.h
 
-./: exe{link_test}: cxx{$link_test_SOURCES} hxx{$link_test_HEADERS} $libs $boost_libs
+./: exe{link_test}: cxx{$link_test_SOURCES} hxx{$link_test_HEADERS} $libthrift $boost_libs
 
-# TODO: Add remaining (conditional) tests depending on presence of libevent, openssl etc.
+# Conditional tests (libevent, libz, libssl)
+
+processor_test_SOURCES = \
+  src/processor/ProcessorTest.cpp \
+  src/processor/EventLog.cpp \
+  src/processor/ServerThread.cpp
+  
+processor_test_HEADERS = \
+  src/processor/EventLog.h \
+  src/processor/Handlers.h \
+  src/processor/ServerThread.h
+
+# ProcessorTest.cpp fails to compile.
+# ./: exe{processor_test}: cxx{$processor_test_SOURCES} hxx{$processor_test_HEADERS} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
+#  include = $($libthrift: libthrift.libevent)
+
+TNonblockingServerTest_SOURCES = \
+  src/TNonblockingServerTest.cpp
+
+./: exe{TNonblockingServerTest}: cxx{$TNonblockingServerTest_SOURCES} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
+  include = $($libthrift: libthrift.libevent)
+
+TNonblockingSSLServerTest_SOURCES = \
+src/TNonblockingSSLServerTest.cpp
+
+./: exe{TNonblockingSSLServerTest}: cxx{$TNonblockingSSLServerTest_SOURCES} $libthriftnb lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
+  include = ($($libthrift: libthrift.libevent) && $($libthrift: libthrift.openssl))
+exe{TNonblockingSSLServerTest}:
+{
+    test.arguments = -- "$keys_out"
+}
+
+OpenSSLManualInitTest_SOURCES = \
+src/OpenSSLManualInitTest.cpp
+
+./: exe{OpenSSLManualInitTest}: cxx{$OpenSSLManualInitTest_SOURCES} $libthrift $boost_libs $boost_test: \
+  include = $($libthrift: libthrift.openssl)
+
+SecurityTest_SOURCES = \
+src/SecurityTest.cpp
+
+./: exe{SecurityTest}: cxx{$SecurityTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test: \
+  include = $($libthrift: libthrift.openssl)
+exe{SecurityTest}:
+{
+    test.arguments = -- "$keys_out"
+}
+
+SecurityFromBufferTest_SOURCES = \
+  src/SecurityFromBufferTest.cpp
+
+./: exe{SecurityFromBufferTest}: cxx{$SecurityFromBufferTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test: \
+  include = $($libthrift: libthrift.openssl)
+exe{SecurityFromBufferTest}:
+{
+    test.arguments = -- "$keys_out"
+}
+
+ZlibTest_SOURCES = \
+  src/ZlibTest.cpp
+
+./: exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test: \
+  include = $($libthrift: libthrift.libz)
+
+TransportTest_SOURCES = \
+  src/TransportTest.cpp
+
+./: exe{TransportTest}: cxx{$TransportTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test: \
+  include = $($libthrift: libthrift.libz)
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
