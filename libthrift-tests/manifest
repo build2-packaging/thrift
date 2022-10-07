@@ -10,6 +10,7 @@ package-url: https://github.com/build2-packaging/thrift
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 depends: * thrift == $
+depends: * libssl ^1.1.1
 depends: { \
   libboost-chrono \
   libboost-filesystem \
@@ -18,6 +19,7 @@ depends: { \
   libboost-iterator \
   libboost-move \
   libboost-test \
+  libboost-random \
   libboost-thread \
 } ~1.78.0
 requires: c++11
