@@ -1,7 +1,9 @@
 import! [metadata] thrift = thrift%exe{thrift}
 import! openssl = openssl%exe{openssl}
 
-import libs = libthrift%lib{thrift}
+import libthrift = libthrift%lib{thrift}
+import libthriftnb = libthrift%lib{thriftnb}
+import libthriftz = libthrift%lib{thriftz}
 
 import boost_libs += libboost-chrono%lib{boost_chrono}
 import boost_libs += libboost-filesystem%lib{boost_filesystem}
@@ -264,7 +266,7 @@ testgencpp_HEADERS = \
   gen-cpp/OneWayTest_types.h \
   gen-cpp/OneWayService.h \
   gen-cpp/TypedefTest_types.h
-lib{testgencpp}: libul{testgencpp}: cxx{$testgencpp_SOURCES} hxx{$testgencpp_HEADERS} $libs $boost_libs
+lib{testgencpp}: libul{testgencpp}: cxx{$testgencpp_SOURCES} hxx{$testgencpp_HEADERS} $libthrift $boost_libs
 
 testgencpp_cob_SOURCES = \
   gen-cpp/ChildService.cpp \
@@ -276,7 +278,7 @@ testgencpp_cob_HEADERS = \
   gen-cpp/EmptyService.h \
   gen-cpp/ParentService.h \
   gen-cpp/proc_types.h
-lib{testgencpp_cob}: libul{testgencpp_cob}: cxx{$testgencpp_cob_SOURCES} hxx{$testgencpp_cob_HEADERS} $libs $boost_libs
+lib{testgencpp_cob}: libul{testgencpp_cob}: cxx{$testgencpp_cob_SOURCES} hxx{$testgencpp_cob_HEADERS} $libthrift $boost_libs
 
 # Export all symbols for windows
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/build/cmake/DefinePlatformSpecifc.cmake#L52-L56
@@ -290,7 +292,7 @@ if ($cxx.target.system == 'mingw32')
   cxx.loptions += -Wl,--export-all-symbols
 }
 
-./: exe{Benchmark}: src/cxx{Benchmark} lib{testgencpp} $libs $boost_libs
+./: exe{Benchmark}: src/cxx{Benchmark} lib{testgencpp} $libthrift $boost_libs
 
 UnitTest_SOURCES = \
   src/UnitTestMain.cpp \
@@ -304,7 +306,7 @@ UnitTest_SOURCES = \
   src/TServerTransportTest.cpp \
   src/ThrifttReadCheckTests.cpp
 
-./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} $libs $boost_libs $boost_test
+./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} $libthrift $boost_libs $boost_test
 {
   # Disable locale tests since build agent may not have it installed.
   test.arguments=--run_test="!ToStringTest/locale_*"
