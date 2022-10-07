@@ -1,4 +1,5 @@
 import! [metadata] thrift = thrift%exe{thrift}
+import! openssl = openssl%exe{openssl}
 
 import libs = libthrift%lib{thrift}
 
@@ -8,9 +9,132 @@ import boost_libs += libboost-foreach%lib{boost_foreach}
 import boost_libs += libboost-format%lib{boost_format}
 import boost_libs += libboost-iterator%lib{boost_iterator}
 import boost_libs += libboost-move%lib{boost_move}
+import boost_libs += libboost-random%lib{boost_random}
 import boost_libs += libboost-thread%lib{boost_thread}
 
 import boost_test += libboost-test%lib{boost_test}
+
+define cert: file
+define pem: file
+cert{*}: extension = crt
+pem{*}: extension = pem
+
+test_certificates = \
+  server \
+  client \
+  client_v3
+
+# https://github.com/apache/thrift/blob/4f72788418d8ee331d8841310a4066fd0ba2e510/test/keys/keygen/make-serverkey.sh
+keys_out = "$out_base/keys"
+<keys/cert{$test_certificates} keys/pem{CA}>: \
+  $openssl
+{{
+  diag "Generate test certificates"
+
+  password = thrift
+  subj = '/CN=localhost/emailAddress=dev@thrift.apache.org/OU=Apache Thrift/O=The Apache Software Foundation/L=Forest Hill/ST=Maryland/C=US'
+
+  echo "[config]"
+  echo writing config
+  echo '[ req ]' > "$keys_out/my.cfg"
+  echo 'default_bits= 4096' >> "$keys_out/my.cfg"
+  echo 'distinguished_name=req' >> "$keys_out/my.cfg"
+  echo 'x509_extensions = v3_ca' >> "$keys_out/my.cfg"
+  echo 'req_extensions = v3_req' >> "$keys_out/my.cfg"
+  echo '' >> "$keys_out/my.cfg"
+  echo '[ v3_req ]' >> "$keys_out/my.cfg"
+  echo 'basicConstraints = CA:FALSE' >> "$keys_out/my.cfg"
+  echo 'keyUsage = nonRepudiation, digitalSignature, keyEncipherment' >> "$keys_out/my.cfg"
+  echo 'subjectAltName=@alternate_names' >> "$keys_out/my.cfg"
+  echo '' >> "$keys_out/my.cfg"
+  echo '[ alternate_names ]' >> "$keys_out/my.cfg"
+  echo 'IP.1=127.0.0.1' >> "$keys_out/my.cfg"
+  echo 'IP.2=::1' >> "$keys_out/my.cfg"
+  echo 'IP.3=::ffff:127.0.0.1' >> "$keys_out/my.cfg"
+  echo 'DNS.1=localhost' >> "$keys_out/my.cfg"
+  echo '' >> "$keys_out/my.cfg"
+  echo '[ v3_ca ]' >> "$keys_out/my.cfg"
+  echo 'subjectKeyIdentifier=hash' >> "$keys_out/my.cfg"
+  echo 'authorityKeyIdentifier=keyid:always,issuer' >> "$keys_out/my.cfg"
+  echo 'basicConstraints = critical, CA:TRUE, pathlen:0' >> "$keys_out/my.cfg"
+  echo 'keyUsage = critical, cRLSign, keyCertSign, nonRepudiation, digitalSignature, keyEncipherment' >> "$keys_out/my.cfg"
+  echo 'extendedKeyUsage = serverAuth, clientAuth' >> "$keys_out/my.cfg"
+  echo 'subjectAltName=@alternate_names' >> "$keys_out/my.cfg"
+  echo '' >> "$keys_out/my.cfg"
+
+  echo "[server key and certificate]"
+  $openssl req \
+    -new \
+    -x509 \
+    -nodes  \
+    -days 3000 \
+    -subj $subj \
+    -out "$keys_out/server.crt" \
+    -keyout "$keys_out/server.key" \
+    -extensions v3_ca \
+    -config "$keys_out/my.cfg"
+  $openssl x509 \
+    -in "$keys_out/server.crt" \
+    -text > "$keys_out/CA.pem"
+
+  cat "$keys_out/server.crt" "$keys_out/server.key" > "$keys_out/server.pem"
+  $openssl pkcs12 \
+    -export \
+    -clcerts \
+    -in "$keys_out/server.crt" \
+    -inkey "$keys_out/server.key" \
+    -out "$keys_out/server.p12" \
+    -passout pass:$password
+
+  echo "[client key and certificate]"
+  $openssl genrsa -out "$keys_out/client.key"
+  $openssl req \
+    -new \
+    -subj $subj \
+    -key "$keys_out/client.key" \
+    -out "$keys_out/client.csr"
+  $openssl x509 \
+    -req \
+    -days 3000 \
+    -in "$keys_out/client.csr" \
+    -CA "$keys_out/CA.pem" \
+    -CAkey "$keys_out/server.key" \
+    -set_serial 01 \
+    -out "$keys_out/client.crt"
+  $openssl pkcs12 \
+    -export \
+    -clcerts \
+    -in "$keys_out/client.crt" \
+    -inkey "$keys_out/client.key" \
+    -out "$keys_out/client.p12" \
+    -passout pass:$password
+  $openssl pkcs12 \
+    -in "$keys_out/client.p12" \
+    -out "$keys_out/client.pem" \
+    -clcerts \
+    -passin pass:$password \
+    -passout pass:$password
+
+  echo "[client_v3 key and certificate]"
+  $openssl genrsa -out "$keys_out/client_v3.key"
+  $openssl req \
+    -new \
+    -subj $subj \
+    -key "$keys_out/client_v3.key" \
+    -out "$keys_out/client_v3.csr" \
+    -extensions v3_req \
+    -config "$keys_out/my.cfg"
+  $openssl x509 \
+    -req \
+    -days 3000 \
+    -in "$keys_out/client_v3.csr" \
+    -CA "$keys_out/CA.pem" \
+    -CAkey "$keys_out/server.key" \
+    -set_serial 01 \
+    -out "$keys_out/client_v3.crt" \
+    -extensions v3_req \
+    -extfile "$keys_out/my.cfg"
+}}
 
 generated_HEADERS = \
   AnnotationTest_types.h \
