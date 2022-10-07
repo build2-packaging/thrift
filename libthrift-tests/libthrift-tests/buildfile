@@ -17,18 +17,50 @@ import boost_libs += libboost-thread%lib{boost_thread}
 import boost_test += libboost-test%lib{boost_test}
 
 define cert: file
+define csr: file
+define key: file
 define pem: file
+define p12: file
 cert{*}: extension = crt
+csr{*}: extension = csr
+key{*}: extension = key
 pem{*}: extension = pem
+p12{*}: extension = p12
 
 test_certificates = \
   server \
   client \
   client_v3
 
+test_csrs = \
+  server \
+  client \
+  client_v3
+
+test_keys = \
+  server \
+  client \
+  client_v3
+
+test_p12 = \
+  server \
+  client
+
+test_pems = \
+  CA \
+  server \
+  client \
+  client_v3
+
 # https://github.com/apache/thrift/blob/4f72788418d8ee331d8841310a4066fd0ba2e510/test/keys/keygen/make-serverkey.sh
 keys_out = "$out_base/keys"
-<keys/cert{$test_certificates} keys/pem{CA}>: \
+<\
+  keys/cert{$test_certificates} \
+  keys/csr{$test_csrs} \
+  keys/key{$test_keys} \
+  keys/p12{$test_p12} \
+  keys/pem{$test_pems} \
+  >: \
   $openssl
 {{
   diag "Generate test certificates"
