@@ -1,0 +1,151 @@
+: tests
+{
+  openssl = $path($openssl)
+  password = thrift
+  subj = '/CN=localhost/emailAddress=dev@thrift.apache.org/OU=Apache Thrift/O=The Apache Software Foundation/L=Forest Hill/ST=Maryland/C=US'
+  
+  # https://github.com/apache/thrift/blob/4f72788418d8ee331d8841310a4066fd0ba2e510/test/keys/keygen/make-serverkey.sh
+  keys_out = "$~/keys"
+
+  +echo "[config]" >|
+  +mkdir "$keys_out"
+  +cat <<EOI >="$keys_out/my.cfg"
+[ req ]
+default_bits= 4096
+distinguished_name=req
+x509_extensions = v3_ca
+req_extensions = v3_req
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName=@alternate_names
+
+[ alternate_names ]
+IP.1=127.0.0.1
+IP.2=::1
+IP.3=::ffff:127.0.0.1
+DNS.1=localhost
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer
+basicConstraints = critical, CA:TRUE, pathlen:0
+keyUsage = critical, cRLSign, keyCertSign, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+subjectAltName=@alternate_names
+EOI
+
+  +echo "[server key and certificate]" >|
+  +$openssl req \
+    -new \
+    -x509 \
+    -nodes  \
+    -days 3000 \
+    -subj "$subj" \
+    -out "$keys_out/server.crt" \
+    -keyout "$keys_out/server.key" \
+    -extensions v3_ca \
+    -config "$keys_out/my.cfg" \
+    1>- 2>| &"$keys_out/server.crt" &"$keys_out/server.key"
+  +$openssl x509 \
+    -in "$keys_out/server.crt" \
+    -text >="$keys_out/CA.pem" \
+    2>|
+
+  +$openssl pkcs12 \
+    -export \
+    -clcerts \
+    -in "$keys_out/server.crt" \
+    -inkey "$keys_out/server.key" \
+    -out "$keys_out/server.p12" \
+    -passout "pass:$password" \
+    1>- 2>| &"$keys_out/server.p12"
+  +echo "[client key and certificate]" >|
+  +$openssl genrsa \
+    -out "$keys_out/client.key" \
+    1>- 2>| &"$keys_out/client.key"
+  +$openssl req \
+    -new \
+    -subj "$subj" \
+    -key "$keys_out/client.key" \
+    -out "$keys_out/client.csr" \
+    -config "$keys_out/my.cfg" \
+    1>- 2>| &"$keys_out/client.csr"
+  +$openssl x509 \
+    -req \
+    -days 3000 \
+    -in "$keys_out/client.csr" \
+    -CA "$keys_out/CA.pem" \
+    -CAkey "$keys_out/server.key" \
+    -set_serial 01 \
+    -out "$keys_out/client.crt" \
+    1>- 2>| &"$keys_out/client.crt"
+
+  +$openssl pkcs12 \
+    -export \
+    -clcerts \
+    -in "$keys_out/client.crt" \
+    -inkey "$keys_out/client.key" \
+    -out "$keys_out/client.p12" \
+    -passout "pass:$password" \
+    1>- 2>| &"$keys_out/client.p12"
+
+  +$openssl pkcs12 \
+    -in "$keys_out/client.p12" \
+    -out "$keys_out/client.pem" \
+    -clcerts \
+    -passin "pass:$password" \
+    -passout "pass:$password" \
+    1>- 2>| &"$keys_out/client.pem"
+
+  +echo "[client_v3 key and certificate]" >|
+  +$openssl genrsa \
+    -out "$keys_out/client_v3.key" \
+    1>- 2>| &"$keys_out/client_v3.key"
+  +$openssl req \
+    -new \
+    -subj "$subj" \
+    -key "$keys_out/client_v3.key" \
+    -out "$keys_out/client_v3.csr" \
+    -extensions v3_req \
+    -config "$keys_out/my.cfg" \
+    1>- 2>| &"$keys_out/client_v3.csr"
+  +$openssl x509 \
+    -req \
+    -days 3000 \
+    -in "$keys_out/client_v3.csr" \
+    -CA "$keys_out/CA.pem" \
+    -CAkey "$keys_out/server.key" \
+    -set_serial 01 \
+    -out "$keys_out/client_v3.crt" \
+    -extensions v3_req \
+    -extfile "$keys_out/my.cfg" \
+    1>- 2>| &"$keys_out/client_v3.crt"
+
+  # Unit tests
+  ## Disable locale tests since build agent may not have it installed.
+  $path($UnitTests) --run_test="!ToStringTest/locale_*" 1>- 2>| &"$~/data";
+  $path($TServerIntegrationTest)  1>- 2>|;
+  $path($AnnotationTest)          1>- 2>|;
+  $path($EnumTest)                1>- 2>|;
+  $path($TFDTransportTest)        1>- 2>|;
+  $path($TPipedTransportTest)     1>- 2>|;
+  $path($AllProtocolsTest)        1>- 2>|;
+  $path($JSONProtoTest)           1>- 2>|;
+  $path($OptionalRequiredTest)    1>- 2>|;
+  $path($RecursiveTest)           1>- 2>|;
+  $path($SpecializationTest)      1>- 2>|;
+  $path($concurrency_test)        1>- 2>|;
+  $path($link_test)               1>- 2>|;
+  #$path($processor_test)          1>- 2>|;
+
+  # Benchmarks
+  $path($Benchmark)               1>- 2>|;
+
+  # Regression tests
+  $path($TInterruptTest)             -- "$keys_out" 1>- 2>|;
+  $path($TNonblockingSSLServerTest)  -- "$keys_out" 1>- 2>|;
+  $path($SecurityTest)               -- "$keys_out" 1>- 2>|;
+  $path($SecurityFromBufferTest)     -- "$keys_out" 1>- 2>|
+}

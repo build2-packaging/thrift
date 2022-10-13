@@ -16,160 +16,6 @@ import boost_libs += libboost-thread%lib{boost_thread}
 
 import boost_test += libboost-test%lib{boost_test}
 
-define cert: file
-define csr: file
-define key: file
-define pem: file
-define p12: file
-cert{*}: extension = crt
-csr{*}: extension = csr
-key{*}: extension = key
-pem{*}: extension = pem
-p12{*}: extension = p12
-
-test_certificates = \
-  server \
-  client \
-  client_v3
-
-test_csrs = \
-  server \
-  client \
-  client_v3
-
-test_keys = \
-  server \
-  client \
-  client_v3
-
-test_p12 = \
-  server \
-  client
-
-test_pems = \
-  CA \
-  server \
-  client \
-  client_v3
-
-# https://github.com/apache/thrift/blob/4f72788418d8ee331d8841310a4066fd0ba2e510/test/keys/keygen/make-serverkey.sh
-keys_out = "$out_base/keys"
-<\
-  keys/cert{$test_certificates} \
-  keys/csr{$test_csrs} \
-  keys/key{$test_keys} \
-  keys/p12{$test_p12} \
-  keys/pem{$test_pems} \
-  >: \
-  $openssl
-{{
-  diag "Generate test certificates"
-
-  password = thrift
-  subj = '/CN=localhost/emailAddress=dev@thrift.apache.org/OU=Apache Thrift/O=The Apache Software Foundation/L=Forest Hill/ST=Maryland/C=US'
-
-  echo "[config]"
-  echo writing config
-  echo '[ req ]' > "$keys_out/my.cfg"
-  echo 'default_bits= 4096' >> "$keys_out/my.cfg"
-  echo 'distinguished_name=req' >> "$keys_out/my.cfg"
-  echo 'x509_extensions = v3_ca' >> "$keys_out/my.cfg"
-  echo 'req_extensions = v3_req' >> "$keys_out/my.cfg"
-  echo '' >> "$keys_out/my.cfg"
-  echo '[ v3_req ]' >> "$keys_out/my.cfg"
-  echo 'basicConstraints = CA:FALSE' >> "$keys_out/my.cfg"
-  echo 'keyUsage = nonRepudiation, digitalSignature, keyEncipherment' >> "$keys_out/my.cfg"
-  echo 'subjectAltName=@alternate_names' >> "$keys_out/my.cfg"
-  echo '' >> "$keys_out/my.cfg"
-  echo '[ alternate_names ]' >> "$keys_out/my.cfg"
-  echo 'IP.1=127.0.0.1' >> "$keys_out/my.cfg"
-  echo 'IP.2=::1' >> "$keys_out/my.cfg"
-  echo 'IP.3=::ffff:127.0.0.1' >> "$keys_out/my.cfg"
-  echo 'DNS.1=localhost' >> "$keys_out/my.cfg"
-  echo '' >> "$keys_out/my.cfg"
-  echo '[ v3_ca ]' >> "$keys_out/my.cfg"
-  echo 'subjectKeyIdentifier=hash' >> "$keys_out/my.cfg"
-  echo 'authorityKeyIdentifier=keyid:always,issuer' >> "$keys_out/my.cfg"
-  echo 'basicConstraints = critical, CA:TRUE, pathlen:0' >> "$keys_out/my.cfg"
-  echo 'keyUsage = critical, cRLSign, keyCertSign, nonRepudiation, digitalSignature, keyEncipherment' >> "$keys_out/my.cfg"
-  echo 'extendedKeyUsage = serverAuth, clientAuth' >> "$keys_out/my.cfg"
-  echo 'subjectAltName=@alternate_names' >> "$keys_out/my.cfg"
-  echo '' >> "$keys_out/my.cfg"
-
-  echo "[server key and certificate]"
-  $openssl req \
-    -new \
-    -x509 \
-    -nodes  \
-    -days 3000 \
-    -subj $subj \
-    -out "$keys_out/server.crt" \
-    -keyout "$keys_out/server.key" \
-    -extensions v3_ca \
-    -config "$keys_out/my.cfg"
-  $openssl x509 \
-    -in "$keys_out/server.crt" \
-    -text > "$keys_out/CA.pem"
-
-  cat "$keys_out/server.crt" "$keys_out/server.key" > "$keys_out/server.pem"
-  $openssl pkcs12 \
-    -export \
-    -clcerts \
-    -in "$keys_out/server.crt" \
-    -inkey "$keys_out/server.key" \
-    -out "$keys_out/server.p12" \
-    -passout pass:$password
-
-  echo "[client key and certificate]"
-  $openssl genrsa -out "$keys_out/client.key"
-  $openssl req \
-    -new \
-    -subj $subj \
-    -key "$keys_out/client.key" \
-    -out "$keys_out/client.csr"
-  $openssl x509 \
-    -req \
-    -days 3000 \
-    -in "$keys_out/client.csr" \
-    -CA "$keys_out/CA.pem" \
-    -CAkey "$keys_out/server.key" \
-    -set_serial 01 \
-    -out "$keys_out/client.crt"
-  $openssl pkcs12 \
-    -export \
-    -clcerts \
-    -in "$keys_out/client.crt" \
-    -inkey "$keys_out/client.key" \
-    -out "$keys_out/client.p12" \
-    -passout pass:$password
-  $openssl pkcs12 \
-    -in "$keys_out/client.p12" \
-    -out "$keys_out/client.pem" \
-    -clcerts \
-    -passin pass:$password \
-    -passout pass:$password
-
-  echo "[client_v3 key and certificate]"
-  $openssl genrsa -out "$keys_out/client_v3.key"
-  $openssl req \
-    -new \
-    -subj $subj \
-    -key "$keys_out/client_v3.key" \
-    -out "$keys_out/client_v3.csr" \
-    -extensions v3_req \
-    -config "$keys_out/my.cfg"
-  $openssl x509 \
-    -req \
-    -days 3000 \
-    -in "$keys_out/client_v3.csr" \
-    -CA "$keys_out/CA.pem" \
-    -CAkey "$keys_out/server.key" \
-    -set_serial 01 \
-    -out "$keys_out/client_v3.crt" \
-    -extensions v3_req \
-    -extfile "$keys_out/my.cfg"
-}}
-
 generated_HEADERS = \
   AnnotationTest_types.h \
   ChildService.h \
@@ -312,18 +158,6 @@ testgencpp_cob_HEADERS = \
   gen-cpp/proc_types.h
 lib{testgencpp_cob}: libul{testgencpp_cob}: cxx{$testgencpp_cob_SOURCES} hxx{$testgencpp_cob_HEADERS} $libthrift $boost_libs
 
-# Export all symbols for windows
-## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/build/cmake/DefinePlatformSpecifc.cmake#L52-L56
-for lib : testgencpp testgencpp_cob
-{
-  libs{$lib}: def{$lib}: include = ($cxx.target.system == 'win32-msvc')
-  def{$lib}: libul{$lib}
-}
-if ($cxx.target.system == 'mingw32')
-{
-  cxx.loptions += -Wl,--export-all-symbols
-}
-
 ./: exe{Benchmark}: src/cxx{Benchmark} lib{testgencpp} $libthrift $boost_libs
 
 UnitTest_SOURCES = \
@@ -337,12 +171,7 @@ UnitTest_SOURCES = \
   src/TServerSocketTest.cpp \
   src/TServerTransportTest.cpp \
   src/ThrifttReadCheckTests.cpp
-
 ./: exe{UnitTests}: cxx{$UnitTest_SOURCES} hxx{src/TTransportCheckThrow.h} lib{testgencpp} $libthrift $boost_libs $boost_test
-{
-  # Disable locale tests since build agent may not have it installed.
-  test.arguments=--run_test="!ToStringTest/locale_*"
-}
 
 TInterruptTest_SOURCES = \
  src/TSocketInterruptTest.cpp
@@ -350,11 +179,7 @@ TInterruptTest_ssl_SOURCES = \
  src/TSSLSocketInterruptTest.cpp
 TInterruptTest_win_SOURCES =\
  src/TPipeInterruptTest.cpp
-
-./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libthrift $boost_libs $boost_test keys/cert{$test_certificates}
-{
-   test.arguments = -- "$keys_out"
-}
+./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libthrift $boost_libs $boost_test
 exe{TInterruptTest}: cxx{$TInterruptTest_ssl_SOURCES}: include = ($($libthrift: libthrift.openssl))
 exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
 
@@ -366,7 +191,6 @@ exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.cl
 
 AllProtocolsTest_SOURCES = \
   src/AllProtocolTests.cpp
-
 ./: exe{AllProtocolsTest}: cxx{$AllProtocolsTest_SOURCES} hxx{src/GenericHelpers.h} txx{src/AllProtocolTests.tcc} $libthrift $boost_libs $boost_test
 
 ./: exe{JSONProtoTest}: src/cxx{JSONProtoTest} lib{testgencpp} $libthrift $boost_libs $boost_test
@@ -380,7 +204,6 @@ concurrency_test_HEADERS = \
   src/concurrency/ThreadFactoryTests.h \
   src/concurrency/ThreadManagerTests.h \
   src/concurrency/TimerManagerTests.h
-
 ./: exe{concurrency_test}: cxx{$concurrency_test_SOURCES} hxx{$concurrency_test_HEADERS} $libthrift $boost_libs
 
 link_test_SOURCES = \
@@ -389,7 +212,6 @@ link_test_SOURCES = \
   src/link/TemplatedService2.cpp
 link_test_HEADERS = \
   gen-cpp/ParentService.h
-
 ./: exe{link_test}: cxx{$link_test_SOURCES} hxx{$link_test_HEADERS} $libthrift $boost_libs
 
 # Conditional tests (libevent, libz, libssl)
@@ -398,66 +220,80 @@ processor_test_SOURCES = \
   src/processor/ProcessorTest.cpp \
   src/processor/EventLog.cpp \
   src/processor/ServerThread.cpp
-  
 processor_test_HEADERS = \
   src/processor/EventLog.h \
   src/processor/Handlers.h \
   src/processor/ServerThread.h
-
 # ProcessorTest.cpp fails to compile.
-# ./: exe{processor_test}: cxx{$processor_test_SOURCES} hxx{$processor_test_HEADERS} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
+#./: exe{processor_test}: cxx{$processor_test_SOURCES} hxx{$processor_test_HEADERS} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
 #  include = $($libthrift: libthrift.libevent)
 
 TNonblockingServerTest_SOURCES = \
   src/TNonblockingServerTest.cpp
-
 ./: exe{TNonblockingServerTest}: include = $($libthrift: libthrift.libevent)
 exe{TNonblockingServerTest}: cxx{$TNonblockingServerTest_SOURCES} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
 
 TNonblockingSSLServerTest_SOURCES = \
   src/TNonblockingSSLServerTest.cpp
-
 ./: exe{TNonblockingSSLServerTest}: include = ($($libthrift: libthrift.libevent) && $($libthrift: libthrift.openssl))
 exe{TNonblockingSSLServerTest}: cxx{$TNonblockingSSLServerTest_SOURCES} $libthriftnb lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
-{
-    test.arguments = -- "$keys_out"
-}
 
 OpenSSLManualInitTest_SOURCES = \
   src/OpenSSLManualInitTest.cpp
-
 ./: exe{OpenSSLManualInitTest}: include = $($libthrift: libthrift.openssl)
 exe{OpenSSLManualInitTest}: cxx{$OpenSSLManualInitTest_SOURCES} $libthrift $boost_libs $boost_test
 
 SecurityTest_SOURCES = \
   src/SecurityTest.cpp
-
 ./: exe{SecurityTest}: include = $($libthrift: libthrift.openssl)
 exe{SecurityTest}: cxx{$SecurityTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test
-{
-    test.arguments = -- "$keys_out"
-}
 
 SecurityFromBufferTest_SOURCES = \
   src/SecurityFromBufferTest.cpp
-
 ./: exe{SecurityFromBufferTest}: include = $($libthrift: libthrift.openssl)
 exe{SecurityFromBufferTest}: cxx{$SecurityFromBufferTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test
-{
-    test.arguments = -- "$keys_out"
-}
 
 ZlibTest_SOURCES = \
   src/ZlibTest.cpp
-
 ./: exe{ZlibTest}: include = $($libthrift: libthrift.zlib)
 exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test  
 
 TransportTest_SOURCES = \
   src/TransportTest.cpp
-
 ./: exe{TransportTest}: include = $($libthrift: libthrift.zlib)
 exe{TransportTest}: cxx{$TransportTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test
+
+./: testscript $openssl
+{
+  openssl = $openssl
+}
+./:
+{
+# Unit tests
+  UnitTests                 = exe{UnitTests}
+  TServerIntegrationTest    = exe{TServerIntegrationTest}
+  AnnotationTest            = exe{AnnotationTest}
+  EnumTest                  = exe{EnumTest}
+  TFDTransportTest          = exe{TFDTransportTest}
+  TPipedTransportTest       = exe{TPipedTransportTest}
+  AllProtocolsTest          = exe{AllProtocolsTest}
+  JSONProtoTest             = exe{JSONProtoTest}
+  OptionalRequiredTest      = exe{OptionalRequiredTest}
+  RecursiveTest             = exe{RecursiveTest}
+  SpecializationTest        = exe{SpecializationTest}
+  concurrency_test          = exe{concurrency_test}
+  link_test                 = exe{link_test}
+  TransportTest             = exe{TransportTest}
+  ZlibTest                  = exe{ZlibTest}
+  #processor_test           = exe{processor_test}
+# Benchmarks
+  Benchmark                 = exe{Benchmark}
+# Regression tests
+  TInterruptTest            = exe{TInterruptTest}
+  TNonblockingSSLServerTest = exe{TNonblockingSSLServerTest}
+  SecurityTest              = exe{SecurityTest}
+  SecurityFromBufferTest    = exe{SecurityFromBufferTest}
+}
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
@@ -471,4 +307,16 @@ if ($cxx.class == 'msvc')
 if ($cxx.target.class != 'macos' && $cxx.target.system != 'win32-msvc' && $cxx.target.system != 'mingw32')
 {
   cxx.loptions += -lrt
+}
+
+# Export all symbols for windows
+## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/build/cmake/DefinePlatformSpecifc.cmake#L52-L56
+for lib : testgencpp testgencpp_cob
+{
+  libs{$lib}: def{$lib}: include = ($cxx.target.system == 'win32-msvc')
+  def{$lib}: libul{$lib}
+}
+if ($cxx.target.system == 'mingw32')
+{
+  cxx.loptions += -Wl,--export-all-symbols
 }
