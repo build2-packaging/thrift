@@ -267,33 +267,6 @@ exe{TransportTest}: cxx{$TransportTest_SOURCES} $libthriftz lib{testgencpp} $boo
 {
   openssl = $openssl
 }
-./:
-{
-# Unit tests
-  UnitTests                 = exe{UnitTests}
-  TServerIntegrationTest    = exe{TServerIntegrationTest}
-  AnnotationTest            = exe{AnnotationTest}
-  EnumTest                  = exe{EnumTest}
-  TFDTransportTest          = exe{TFDTransportTest}
-  TPipedTransportTest       = exe{TPipedTransportTest}
-  AllProtocolsTest          = exe{AllProtocolsTest}
-  JSONProtoTest             = exe{JSONProtoTest}
-  OptionalRequiredTest      = exe{OptionalRequiredTest}
-  RecursiveTest             = exe{RecursiveTest}
-  SpecializationTest        = exe{SpecializationTest}
-  concurrency_test          = exe{concurrency_test}
-  link_test                 = exe{link_test}
-  TransportTest             = exe{TransportTest}
-  ZlibTest                  = exe{ZlibTest}
-  #processor_test           = exe{processor_test}
-# Benchmarks
-  Benchmark                 = exe{Benchmark}
-# Regression tests
-  TInterruptTest            = exe{TInterruptTest}
-  TNonblockingSSLServerTest = exe{TNonblockingSSLServerTest}
-  SecurityTest              = exe{SecurityTest}
-  SecurityFromBufferTest    = exe{SecurityFromBufferTest}
-}
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 

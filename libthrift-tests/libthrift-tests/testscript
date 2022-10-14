@@ -125,27 +125,27 @@ EOI
 
   # Unit tests
   ## Disable locale tests since build agent may not have it installed.
-  $path($UnitTests) --run_test="!ToStringTest/locale_*" 1>- 2>| &"$~/data";
-  $path($TServerIntegrationTest)  1>- 2>|;
-  $path($AnnotationTest)          1>- 2>|;
-  $path($EnumTest)                1>- 2>|;
-  $path($TFDTransportTest)        1>- 2>|;
-  $path($TPipedTransportTest)     1>- 2>|;
-  $path($AllProtocolsTest)        1>- 2>|;
-  $path($JSONProtoTest)           1>- 2>|;
-  $path($OptionalRequiredTest)    1>- 2>|;
-  $path($RecursiveTest)           1>- 2>|;
-  $path($SpecializationTest)      1>- 2>|;
-  $path($concurrency_test)        1>- 2>|;
-  $path($link_test)               1>- 2>|;
-  #$path($processor_test)          1>- 2>|;
+  $path(exe{UnitTests}) --run_test="!ToStringTest/locale_*" 1>- 2>| &"$~/data";
+  $path(exe{TServerIntegrationTest})  1>- 2>|;
+  $path(exe{AnnotationTest})          1>- 2>|;
+  $path(exe{EnumTest})                1>- 2>|;
+  $path(exe{TFDTransportTest})        1>- 2>|;
+  $path(exe{TPipedTransportTest})     1>- 2>|;
+  $path(exe{AllProtocolsTest})        1>- 2>|;
+  $path(exe{JSONProtoTest})           1>- 2>|;
+  $path(exe{OptionalRequiredTest})    1>- 2>|;
+  $path(exe{RecursiveTest})           1>- 2>|;
+  $path(exe{SpecializationTest})      1>- 2>|;
+  $path(exe{concurrency_test})        1>- 2>|;
+  $path(exe{link_test})               1>- 2>|;
+  #$path(exe{processor_test})          1>- 2>|;
 
   # Benchmarks
-  $path($Benchmark)               1>- 2>|;
+  $path(exe{Benchmark})               1>- 2>|;
 
   # Regression tests
-  $path($TInterruptTest)             -- "$keys_out" 1>- 2>|;
-  $path($TNonblockingSSLServerTest)  -- "$keys_out" 1>- 2>|;
-  $path($SecurityTest)               -- "$keys_out" 1>- 2>|;
-  $path($SecurityFromBufferTest)     -- "$keys_out" 1>- 2>|
+  $path(exe{TInterruptTest})             -- "$keys_out" 1>- 2>|;
+  $path(exe{TNonblockingSSLServerTest})  -- "$keys_out" 1>- 2>|;
+  $path(exe{SecurityTest})               -- "$keys_out" 1>- 2>|;
+  $path(exe{SecurityFromBufferTest})     -- "$keys_out" 1>- 2>|
 }
