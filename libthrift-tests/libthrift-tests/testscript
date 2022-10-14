@@ -125,7 +125,7 @@ EOI
 
   # Unit tests
   ## Disable locale tests since build agent may not have it installed.
-  $path(exe{UnitTests}) --run_test="!ToStringTest/locale_*" 1>- 2>| &"$~/data";
+  $path(exe{UnitTests}) --run_test="!ToStringTest/locale_*" 1>- 2>| &?"$~/data";
   $path(exe{TServerIntegrationTest})  1>- 2>|;
   $path(exe{AnnotationTest})          1>- 2>|;
   $path(exe{EnumTest})                1>- 2>|;
