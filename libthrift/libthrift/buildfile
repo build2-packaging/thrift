@@ -153,7 +153,7 @@ for lib : thrift thriftnb thriftz
 
 # Configuration
 ## Output to a 'thrift' folder, since includes expect this.
-thrift/hxx{config}: in{config.h.in}
+thrift/hxx{config}: in{config.h.in} fsdir{thrift/}
 {
   autoconf.flavor = cmake
   autoconf.aliases = HAVE_AF_UNIX_H@HAVE_AFUNIX_H
