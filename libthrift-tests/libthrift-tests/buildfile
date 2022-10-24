@@ -1,8 +1,16 @@
 import! [metadata] thrift = thrift%exe{thrift}
+
+# @@ TODO: should this be imported only if openssl is enabled? Perhaps
+#          we could use its absense to communicate to testsscript to omit
+#          the key generation, etc?
+#
 import! openssl = openssl%exe{openssl}
 
 import libthrift = libthrift%lib{thrift}
 import libthriftnb = libthrift%lib{thriftnb}
+
+# @@ TODO: should this be imported only if zlib is enabled?
+#
 import libthriftz = libthrift%lib{thriftz}
 
 import boost_libs += libboost-chrono%lib{boost_chrono}

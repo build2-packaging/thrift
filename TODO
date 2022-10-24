@@ -1,8 +1,4 @@
-- Add remaining (conditional) tests depending on presence of libevent,
-  openssl etc. See the below HOWTO for details and libevent for examples:
-
-  https://github.com/build2/HOWTO/blob/master/entries/convey-additional-information-with-exe-lib.md
-  - Done.
+- Fix tests WRT presence/absence of openssl/zlib (see @@ TODO items).
 
 - Change config.libthrfit.{libz, openssl, libevent} to false once we
   have support for custom CI configuration.
