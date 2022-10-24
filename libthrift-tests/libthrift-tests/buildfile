@@ -90,7 +90,7 @@ generated_SOURCES = \
 define thrift: file
 thrift{*}: extension = thrift
 
-<gen-cpp/cxx{$generated_SOURCES} gen-cpp/hxx{$generated_HEADERS}>: \
+<gen-cpp/hxx{$generated_HEADERS} gen-cpp/cxx{$generated_SOURCES}>: \
   thrift{test_gen/AnnotationTest.thrift} \
   thrift{test_gen/DebugProtoTest.thrift} \
   thrift{test_gen/EnumTest.thrift} \
@@ -168,9 +168,10 @@ TInterruptTest_ssl_SOURCES = \
  src/TSSLSocketInterruptTest.cpp
 TInterruptTest_win_SOURCES =\
  src/TPipeInterruptTest.cpp
-./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES} lib{testgencpp} $libthrift $boost_libs $boost_test
+./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES}
 exe{TInterruptTest}: cxx{$TInterruptTest_ssl_SOURCES}: include = ($($libthrift: libthrift.openssl))
 exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
+exe{TInterruptTest}: lib{testgencpp} $libthrift $boost_libs $boost_test
 
 ./: exe{TServerIntegrationTest}: src/cxx{TServerIntegrationTest} lib{testgencpp_cob} $libthrift $boost_libs $boost_test
 ./: exe{AnnotationTest}: src/cxx{AnnotationTest} lib{testgencpp} $libthrift $boost_libs $boost_test
