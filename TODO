@@ -6,5 +6,3 @@
 
 - Change config.libthrfit.{libz, openssl, libevent} to false once we
   have support for custom CI configuration.
-
-- Re-enable for-loop in libthrift-tests recipe once build2 issues are fixed.

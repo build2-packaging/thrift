@@ -95,10 +95,6 @@ thrift{*}: extension = thrift
   thrift{src/processor/proc.thrift} \
   $thrift
 {{
-
-# @@ TODO: re-enable once build2 issues are resolved.
-#
-#\
   inputs = $filter($<, thrift)
 
   diag thrift $inputs
@@ -106,21 +102,6 @@ thrift{*}: extension = thrift
   for i: $inputs
     $thrift -o "$out_base" --gen cpp:no_skeleton $path($i)
   end
-#\
-
-  diag "Generate thrift test sources"
-  # TODO: Loop over input files instead of listing explicitly, though
-  ##      ad hoc recipes currently does not support this (v0.15.0).
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[0])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[1])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[2])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[3])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[4])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[5])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[6])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[7])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[8])
-  $thrift -o "$out_base" --gen cpp:no_skeleton $path($<[9])
 }}
 
 testgencpp_SOURCES = \
@@ -256,7 +237,7 @@ exe{SecurityFromBufferTest}: cxx{$SecurityFromBufferTest_SOURCES} $libthrift lib
 ZlibTest_SOURCES = \
   src/ZlibTest.cpp
 ./: exe{ZlibTest}: include = $($libthrift: libthrift.zlib)
-exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test  
+exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test
 
 TransportTest_SOURCES = \
   src/TransportTest.cpp
