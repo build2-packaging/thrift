@@ -6,7 +6,7 @@ import! [metadata] thrift = thrift%exe{thrift}
 #
 import! openssl = openssl%exe{openssl}
 
-import libthrift = libthrift%lib{thrift}
+import! [metadata] libthrift = libthrift%lib{thrift}
 import libthriftnb = libthrift%lib{thriftnb}
 
 # @@ TODO: should this be imported only if zlib is enabled?
