@@ -221,6 +221,7 @@ lib{thrift}:
 {
   cxx.export.poptions = "-I$out_base" "-I$src_base/src"
   cxx.export.libs     = $intf_libs
+  export.metadata     = 1 libthrift
   libthrift.libevent  = [bool] $config.libthrift.libevent
   libthrift.openssl   = [bool] $config.libthrift.openssl
   libthrift.zlib      = [bool] $config.libthrift.zlib
