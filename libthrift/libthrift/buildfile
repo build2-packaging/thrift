@@ -10,11 +10,11 @@ intf_libs = # Interface dependencies.
 impl_libs = # Implementation dependencies.
 
 # Required.
-import impl_libs += libboost-numeric-conversion%lib{boost_numeric_conversion}
-import impl_libs += libboost-algorithm%lib{boost_algorithm}
-import impl_libs += libboost-scope-exit%lib{boost_scope_exit}
-import impl_libs += libboost-locale%lib{boost_locale}
-import impl_libs += libboost-tokenizer%lib{boost_tokenizer}
+import intf_libs += libboost-numeric-conversion%lib{boost_numeric_conversion}
+import intf_libs += libboost-algorithm%lib{boost_algorithm}
+import intf_libs += libboost-scope-exit%lib{boost_scope_exit}
+import intf_libs += libboost-locale%lib{boost_locale}
+import intf_libs += libboost-tokenizer%lib{boost_tokenizer}
 
 # Optional.
 #
