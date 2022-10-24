@@ -1,6 +1,3 @@
-- Are libssl/libevent/libz really all interface dependencies? Also sys_libs?
-  - libssl/libevent/libz yes, sys_libs no (tests pass without it).
-
 - Add remaining (conditional) tests depending on presence of libevent,
   openssl etc. See the below HOWTO for details and libevent for examples:
 
