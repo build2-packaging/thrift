@@ -1,3 +1,16 @@
+# Testscript directory.
+#
+test
+
+OpenSSLManualInitTest
+SecurityFromBufferTest
+SecurityTest
+TInterruptTest
+TNonblockingSSLServerTest
+TNonblockingServerTest
+TransportTest
+ZlibTest
+
 AllProtocolsTest
 AnnotationTest
 Benchmark
