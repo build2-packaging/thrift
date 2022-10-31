@@ -1,6 +1,6 @@
 : 1
 name: thrift
-version: 0.16.0+1
+version: 0.17.0-a.0.z
 summary: Apache Thrift compiler
 license: Apache-2.0
 description-file: README.md
