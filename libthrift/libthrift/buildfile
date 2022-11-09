@@ -226,6 +226,7 @@ lib{thrift}:
   libthrift.openssl   = [bool] $config.libthrift.openssl
   libthrift.zlib      = [bool] $config.libthrift.zlib
 }
+liba{thrift}: cxx.export.poptions =+ -DTHRIFT_STATIC_DEFINE
 lib{thriftnb thriftz}: cxx.export.libs = lib{thrift}
 
 # For pre-releases use the complete version to make sure they cannot be used
