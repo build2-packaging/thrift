@@ -1,0 +1,1 @@
+../../../../upstream/compiler/cpp/src/thrift/logging.cc
