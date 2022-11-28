@@ -1,1 +1,0 @@
-../../../upstream/test/JavaBeansTest.thrift

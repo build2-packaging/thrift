@@ -1,5 +1,7 @@
 thrift
-
 # Testscript output directory (can be symlink).
 #
 test-thrift
+
+# upstream directory has same name as executable
+!src/thrift

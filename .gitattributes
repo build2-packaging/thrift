@@ -18,6 +18,9 @@
 #
 #*.png binary
 
+libthrift-tests/libthrift-tests/src symlink=dir
 libthrift/libthrift/src/thrift symlink=dir
-libthrift-test/libthrift-test/src symlink=dir
-thrift/thrift/src symlink=dir
+thrift/thrift/src/thrift/audit symlink=dir
+thrift/thrift/src/thrift/generate symlink=dir
+thrift/thrift/src/thrift/parse symlink=dir
+thrift/thrift/src/thrift/windows symlink=dir

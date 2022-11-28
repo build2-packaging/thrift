@@ -1,1 +1,0 @@
-../../../upstream/test/JavaBinaryDefault.thrift
