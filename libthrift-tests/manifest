@@ -1,6 +1,6 @@
 : 1
 name: libthrift-tests
-version: 0.17.0
+version: 0.18.0-a.0.z
 project: thrift
 summary: Apache Thrift C++ library tests
 license: Apache-2.0
