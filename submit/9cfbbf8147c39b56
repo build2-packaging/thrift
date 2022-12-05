@@ -1,0 +1,5 @@
+: 1
+name: thrift
+version: 0.17.0+1
+summary: Apache Thrift compiler
+license: Apache-2.0
