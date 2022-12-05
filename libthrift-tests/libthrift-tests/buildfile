@@ -25,62 +25,62 @@ import boost_libs += libboost-thread%lib{boost_thread}
 import boost_test += libboost-test%lib{boost_test}
 
 generated_HEADERS = \
-  AnnotationTest_types.h \
-  ChildService.h \
-  DebugProtoTest_constants.h \
-  DebugProtoTest_types.h \
-  EmptyService.h \
-  EnumTestService.h \
-  EnumTest_constants.h \
-  EnumTest_types.h \
-  Inherited.h \
-  OneWayService.h \
-  OneWayTest_types.h \
-  OptionalRequiredTest_types.h \
-  ParentService.h \
-  Recursive_types.h \
-  ReverseOrderService.h \
-  SecondService.h \
-  Service.h \
-  ServiceForExceptionWithAMap.h \
-  Srv.h \
-  StressTest_types.h \
-  TestService.h \
-  ThriftTest.h \
-  ThriftTest_constants.h \
-  ThriftTest_types.h \
-  TypedefTest_types.h \
-  deprecate_everything.h \
-  foo_service.h \
-  proc_types.h
+  gen-cpp/AnnotationTest_types.h \
+  gen-cpp/ChildService.h \
+  gen-cpp/DebugProtoTest_constants.h \
+  gen-cpp/DebugProtoTest_types.h \
+  gen-cpp/EmptyService.h \
+  gen-cpp/EnumTestService.h \
+  gen-cpp/EnumTest_constants.h \
+  gen-cpp/EnumTest_types.h \
+  gen-cpp/Inherited.h \
+  gen-cpp/OneWayService.h \
+  gen-cpp/OneWayTest_types.h \
+  gen-cpp/OptionalRequiredTest_types.h \
+  gen-cpp/ParentService.h \
+  gen-cpp/Recursive_types.h \
+  gen-cpp/ReverseOrderService.h \
+  gen-cpp/SecondService.h \
+  gen-cpp/Service.h \
+  gen-cpp/ServiceForExceptionWithAMap.h \
+  gen-cpp/Srv.h \
+  gen-cpp/StressTest_types.h \
+  gen-cpp/TestService.h \
+  gen-cpp/ThriftTest.h \
+  gen-cpp/ThriftTest_constants.h \
+  gen-cpp/ThriftTest_types.h \
+  gen-cpp/TypedefTest_types.h \
+  gen-cpp/deprecate_everything.h \
+  gen-cpp/foo_service.h \
+  gen-cpp/proc_types.h
 
 generated_SOURCES = \
-  AnnotationTest_types.cpp \
-  ChildService.cpp \
-  DebugProtoTest_constants.cpp \
-  DebugProtoTest_types.cpp \
-  EmptyService.cpp \
-  EnumTestService.cpp \
-  EnumTest_constants.cpp \
-  EnumTest_types.cpp \
-  Inherited.cpp \
-  OneWayService.cpp \
-  OptionalRequiredTest_types.cpp \
-  ParentService.cpp \
-  Recursive_types.cpp \
-  ReverseOrderService.cpp \
-  SecondService.cpp \
-  Service.cpp \
-  ServiceForExceptionWithAMap.cpp \
-  Srv.cpp \
-  TestService.cpp \
-  ThriftTest.cpp \
-  ThriftTest_constants.cpp \
-  ThriftTest_types.cpp \
-  TypedefTest_types.cpp \
-  deprecate_everything.cpp \
-  foo_service.cpp \
-  proc_types.cpp
+  gen-cpp/AnnotationTest_types.cpp \
+  gen-cpp/ChildService.cpp \
+  gen-cpp/DebugProtoTest_constants.cpp \
+  gen-cpp/DebugProtoTest_types.cpp \
+  gen-cpp/EmptyService.cpp \
+  gen-cpp/EnumTestService.cpp \
+  gen-cpp/EnumTest_constants.cpp \
+  gen-cpp/EnumTest_types.cpp \
+  gen-cpp/Inherited.cpp \
+  gen-cpp/OneWayService.cpp \
+  gen-cpp/OptionalRequiredTest_types.cpp \
+  gen-cpp/ParentService.cpp \
+  gen-cpp/Recursive_types.cpp \
+  gen-cpp/ReverseOrderService.cpp \
+  gen-cpp/SecondService.cpp \
+  gen-cpp/Service.cpp \
+  gen-cpp/ServiceForExceptionWithAMap.cpp \
+  gen-cpp/Srv.cpp \
+  gen-cpp/TestService.cpp \
+  gen-cpp/ThriftTest.cpp \
+  gen-cpp/ThriftTest_constants.cpp \
+  gen-cpp/ThriftTest_types.cpp \
+  gen-cpp/TypedefTest_types.cpp \
+  gen-cpp/deprecate_everything.cpp \
+  gen-cpp/foo_service.cpp \
+  gen-cpp/proc_types.cpp
 
 # Generate all thrift source files
 #
@@ -90,7 +90,7 @@ generated_SOURCES = \
 define thrift: file
 thrift{*}: extension = thrift
 
-<gen-cpp/hxx{$generated_HEADERS} gen-cpp/cxx{$generated_SOURCES} fsdir{gen-cpp}>: \
+<hxx{$generated_HEADERS} cxx{$generated_SOURCES} fsdir{gen-cpp}>: \
   thrift{test_gen/AnnotationTest.thrift} \
   thrift{test_gen/DebugProtoTest.thrift} \
   thrift{test_gen/EnumTest.thrift} \
