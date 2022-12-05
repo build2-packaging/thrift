@@ -200,27 +200,30 @@ if ($cxx.target.system == 'mingw32')
 
 # Windows
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L163-L165
-switch $cxx.target.class, $cxx.target.system
+sys_libs =
+switch $cxx.target.system
 {
-  case 'windows', 'mingw*'
-    cxx.libs += -lws2_32
-  case 'windows'
-    cxx.libs += ws2_32.lib
+  case 'mingw32'
+    sys_libs += -lws2_32
+  case 'win32-msvc'
+    sys_libs += ws2_32.lib
 }
 
 # Unix
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L119-L125
 if ($cxx.target.system != 'win32-msvc')
 {
-  cxx.libs += -pthread
+  sys_libs += -pthread
 }
+
+cxx.libs += $sys_libs
 
 # Export options.
 #
 lib{thrift}:
 {
   cxx.export.poptions = "-I$out_base" "-I$src_base/src"
-  cxx.export.libs     = $intf_libs
+  cxx.export.libs     = $intf_libs $sys_libs
   export.metadata     = 1 libthrift
   libthrift.libevent  = [bool] $config.libthrift.libevent
   libthrift.openssl   = [bool] $config.libthrift.openssl

@@ -59,10 +59,10 @@ cxx.poptions =+ "-I$out_root" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
 
 obje{main}: cxx.poptions += "-DTHRIFT_VERSION_BUILD2=\"$version\""
 
-switch $cxx.target.class, $cxx.target.system
+switch $cxx.target.system
 {
-  case 'windows', 'mingw32'
+  case 'mingw32'
     cxx.libs += -lole32
-  case 'windows'
+  case 'win32-msvc'
     cxx.libs += ole32.lib
 }
