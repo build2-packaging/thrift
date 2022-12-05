@@ -15,7 +15,7 @@ compiler_source_adhoc =\
 compiler_source =\
   src/thrift/audit/t_audit.cpp
 
-# NOTE: 0.16.0 fails on MSVC with C++20
+# NOTE: 0.16.0 & 0.17.0 fails on MSVC with C++20 (latter is patched manually in this package)
 ##      See: https://github.com/apache/thrift/pull/2543
 exe{thrift}: hxx{src/thrift/**} \
              cxx{$compiler_core $compiler_source src/thrift/generate/*} \
