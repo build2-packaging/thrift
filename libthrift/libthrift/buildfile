@@ -202,7 +202,7 @@ if ($cxx.target.system == 'mingw32')
 ## See: https://github.com/apache/thrift/blob/2a93df80f27739ccabb5b885cb12a8dc7595ecdf/lib/cpp/CMakeLists.txt#L163-L165
 switch $cxx.target.class, $cxx.target.system
 {
-  case 'windows', 'mingw32'
+  case 'windows', 'mingw*'
     cxx.libs += -lws2_32
   case 'windows'
     cxx.libs += ws2_32.lib
