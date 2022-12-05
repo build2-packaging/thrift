@@ -90,7 +90,7 @@ generated_SOURCES = \
 define thrift: file
 thrift{*}: extension = thrift
 
-<gen-cpp/hxx{$generated_HEADERS} gen-cpp/cxx{$generated_SOURCES}>: \
+<gen-cpp/hxx{$generated_HEADERS} gen-cpp/cxx{$generated_SOURCES} fsdir{gen-cpp}>: \
   thrift{test_gen/AnnotationTest.thrift} \
   thrift{test_gen/DebugProtoTest.thrift} \
   thrift{test_gen/EnumTest.thrift} \
