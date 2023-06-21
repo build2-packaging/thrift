@@ -28,10 +28,6 @@ if $libevent
 {
   import intf_libs += libevent%lib{event_core}
   import intf_libs += libevent%lib{event_extra}
-  if $openssl
-  {
-    import intf_libs += libevent%lib{event_openssl}
-  }
 }
 if $zlib
 {
