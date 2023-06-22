@@ -15,7 +15,7 @@ compiler_source_adhoc =\
 compiler_source =\
   src/thrift/audit/t_audit.cpp
 
-# NOTE: 0.16.0 fails on MSVC with C++20
+# NOTE: 0.16.0 & 0.17.0 fails on MSVC with C++20 (latter is patched manually in this package)
 ##      See: https://github.com/apache/thrift/pull/2543
 exe{thrift}: hxx{src/thrift/**} \
              cxx{$compiler_core $compiler_source src/thrift/generate/*} \
@@ -59,10 +59,10 @@ cxx.poptions =+ "-I$out_root" "-I$src_base/src" -DBISON_USE_PARSER_H_EXTENSION
 
 obje{main}: cxx.poptions += "-DTHRIFT_VERSION_BUILD2=\"$version\""
 
-switch $cxx.target.class, $cxx.target.system
+switch $cxx.target.system
 {
-  case 'windows', 'mingw32'
+  case 'mingw32'
     cxx.libs += -lole32
-  case 'windows'
+  case 'win32-msvc'
     cxx.libs += ole32.lib
 }
