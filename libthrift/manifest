@@ -1,6 +1,6 @@
 : 1
 name: libthrift
-version: 0.17.0+1
+version: 0.17.0+2
 project: thrift
 summary: Apache Thrift C++ library
 license: Apache-2.0
@@ -18,7 +18,18 @@ depends: { \
   libboost-scope-exit \
   libboost-tokenizer \
 } ~1.78.0
-depends: libevent         ? ($config.libthrift.libevent)
+depends:
+\
+libevent
+{
+  enable ($config.libthrift.libevent)
+
+  require
+  {
+    config.libevent.extra = true
+  }
+}
+\
 depends: libssl ^1.1.1    ? ($config.libthrift.openssl)
 depends: libz ^1.2.1200   ? ($config.libthrift.zlib)
 tests: libthrift-tests == $
