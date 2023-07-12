@@ -1,17 +1,25 @@
 import! [metadata] thrift = thrift%exe{thrift}
 
-# @@ TODO: should this be imported only if openssl is enabled? Perhaps
-#          we could use its absense to communicate to testsscript to omit
-#          the key generation, etc?
-#
-import! openssl = openssl%exe{openssl}
-
 import! [metadata, rule_hint=cxx.link] libthrift = libthrift%lib{thrift}
-import libthriftnb = libthrift%lib{thriftnb}
 
-# @@ TODO: should this be imported only if zlib is enabled?
-#
-import libthriftz = libthrift%lib{thriftz}
+openssl  = $($libthrift: libthrift.openssl)
+libevent = $($libthrift: libthrift.libevent)
+zlib     = $($libthrift: libthrift.zlib)
+
+if $openssl
+  import! openssl_exe = openssl%exe{openssl}
+else
+  openssl_exe =
+
+if $libevent
+  import libthriftnb = libthrift%lib{thriftnb}
+else
+  libthriftnb =
+
+if $zlib
+  import libthriftz = libthrift%lib{thriftz}
+else
+  libthriftz =
 
 import boost_libs += libboost-chrono%lib{boost_chrono}
 import boost_libs += libboost-filesystem%lib{boost_filesystem}
@@ -170,7 +178,7 @@ TInterruptTest_ssl_SOURCES = \
 TInterruptTest_win_SOURCES =\
  src/TPipeInterruptTest.cpp
 ./: exe{TInterruptTest}: cxx{$TInterruptTest_SOURCES}
-exe{TInterruptTest}: cxx{$TInterruptTest_ssl_SOURCES}: include = ($($libthrift: libthrift.openssl))
+exe{TInterruptTest}: cxx{$TInterruptTest_ssl_SOURCES}: include = $openssl
 exe{TInterruptTest}: cxx{$TInterruptTest_win_SOURCES}: include = ($cxx.target.class == 'windows')
 exe{TInterruptTest}: lib{testgencpp} $libthrift $boost_libs $boost_test
 
@@ -217,46 +225,46 @@ processor_test_HEADERS = \
   src/processor/ServerThread.h
 # ProcessorTest.cpp fails to compile.
 #./: exe{processor_test}: cxx{$processor_test_SOURCES} hxx{$processor_test_HEADERS} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test: \
-#  include = $($libthrift: libthrift.libevent)
+#  include = $libevent
 
 TNonblockingServerTest_SOURCES = \
   src/TNonblockingServerTest.cpp
-./: exe{TNonblockingServerTest}: include = $($libthrift: libthrift.libevent)
+./: exe{TNonblockingServerTest}: include = $libevent
 exe{TNonblockingServerTest}: cxx{$TNonblockingServerTest_SOURCES} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
 
 TNonblockingSSLServerTest_SOURCES = \
   src/TNonblockingSSLServerTest.cpp
-./: exe{TNonblockingSSLServerTest}: include = ($($libthrift: libthrift.libevent) && $($libthrift: libthrift.openssl))
-exe{TNonblockingSSLServerTest}: cxx{$TNonblockingSSLServerTest_SOURCES} $libthriftnb lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
+./: exe{TNonblockingSSLServerTest}: include = ($libevent && $openssl)
+exe{TNonblockingSSLServerTest}: cxx{$TNonblockingSSLServerTest_SOURCES} lib{testgencpp_cob} $libthriftnb $boost_libs $boost_test
 
 OpenSSLManualInitTest_SOURCES = \
   src/OpenSSLManualInitTest.cpp
-./: exe{OpenSSLManualInitTest}: include = $($libthrift: libthrift.openssl)
+./: exe{OpenSSLManualInitTest}: include = $openssl
 exe{OpenSSLManualInitTest}: cxx{$OpenSSLManualInitTest_SOURCES} $libthrift $boost_libs $boost_test
 
 SecurityTest_SOURCES = \
   src/SecurityTest.cpp
-./: exe{SecurityTest}: include = $($libthrift: libthrift.openssl)
+./: exe{SecurityTest}: include = $openssl
 exe{SecurityTest}: cxx{$SecurityTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test
 
 SecurityFromBufferTest_SOURCES = \
   src/SecurityFromBufferTest.cpp
-./: exe{SecurityFromBufferTest}: include = $($libthrift: libthrift.openssl)
+./: exe{SecurityFromBufferTest}: include = $openssl
 exe{SecurityFromBufferTest}: cxx{$SecurityFromBufferTest_SOURCES} $libthrift lib{testgencpp} $boost_libs $boost_test
 
 ZlibTest_SOURCES = \
   src/ZlibTest.cpp
-./: exe{ZlibTest}: include = $($libthrift: libthrift.zlib)
+./: exe{ZlibTest}: include = $zlib
 exe{ZlibTest}: cxx{$ZlibTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test
 
 TransportTest_SOURCES = \
   src/TransportTest.cpp
-./: exe{TransportTest}: include = $($libthrift: libthrift.zlib)
+./: exe{TransportTest}: include = $zlib
 exe{TransportTest}: cxx{$TransportTest_SOURCES} $libthriftz lib{testgencpp} $boost_libs $boost_test
 
-./: testscript $openssl
+./: testscript $openssl_exe
 {
-  openssl = $openssl
+  openssl = $openssl_exe
 }
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"

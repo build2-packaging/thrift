@@ -19,6 +19,6 @@ hxx{*}: cxx.importable = true
 test.target = $cxx.target
 
 # Enable additional features
-config [bool] config.libthrift.openssl ?= true
-config [bool] config.libthrift.libevent ?= true
-config [bool] config.libthrift.zlib ?= true
+config [bool] config.libthrift.openssl ?= false
+config [bool] config.libthrift.libevent ?= false
+config [bool] config.libthrift.zlib ?= false

@@ -1,3 +1,8 @@
+config [bool] config.libthrift_tests.openssl
+
+if (!$defined(config.libthrift_tests.openssl) && $build.mode != 'skeleton')
+  fail 'config.libthrift_tests.openssl must be specified'
+
 # Uncomment to suppress warnings coming from external libraries.
 #
 #cxx.internal.scope = current
