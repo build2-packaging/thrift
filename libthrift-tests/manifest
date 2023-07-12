@@ -9,8 +9,6 @@ url: https://thrift.apache.org/
 package-url: https://github.com/build2-packaging/thrift
 depends: * build2 >= 0.16.0
 depends: * bpkg >= 0.16.0
-depends: * thrift == $
-depends: * openssl ^1.1.1
 depends: { \
   libboost-chrono \
   libboost-filesystem \
@@ -23,3 +21,25 @@ depends: { \
   libboost-thread \
 } ~1.81.0
 requires: c++11
+
+depends: * thrift == $
+
+depends:
+\
+libthrift == $
+{
+  # Observe config.libthrift.* values.
+  #
+  prefer
+  {
+  }
+  accept (true)
+
+  reflect
+  {
+    config.libthrift_tests.openssl = $config.libthrift.openssl
+  }
+}
+\
+
+depends: * openssl ^1.1.1 ? ($config.libthrift_tests.openssl)

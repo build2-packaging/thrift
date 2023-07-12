@@ -32,5 +32,15 @@ libevent
 \
 depends: libssl ^1.1.1    ? ($config.libthrift.openssl)
 depends: libz ^1.2.1200   ? ($config.libthrift.zlib)
-tests: libthrift-tests == $
 requires: c++11
+
+tests: libthrift-tests == $
+
+optional-build-config:
+\
+config.libthrift.openssl=true
+config.libthrift.libevent=true
+config.libthrift.zlib=true
+;
+Test with optional features enabled.
+\
