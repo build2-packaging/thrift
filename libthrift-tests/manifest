@@ -7,8 +7,8 @@ license: Apache-2.0
 description-file: README.md
 url: https://thrift.apache.org/
 package-url: https://github.com/build2-packaging/thrift
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
 depends: * thrift == $
 depends: * openssl ^1.1.1
 depends: { \
