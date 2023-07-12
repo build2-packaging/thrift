@@ -5,6 +5,7 @@ project: thrift
 summary: Apache Thrift C++ library
 license: Apache-2.0
 description-file: README.md
+package-description-file: PACKAGE-README.md
 url: https://thrift.apache.org/
 package-url: https://github.com/build2-packaging/thrift
 depends: * build2 >= 0.16.0
