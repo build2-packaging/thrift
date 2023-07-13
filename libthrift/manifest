@@ -1,14 +1,15 @@
 : 1
 name: libthrift
-version: 0.17.0+3
+version: 0.17.0+4
 project: thrift
 summary: Apache Thrift C++ library
 license: Apache-2.0
 description-file: README.md
+package-description-file: PACKAGE-README.md
 url: https://thrift.apache.org/
 package-url: https://github.com/build2-packaging/thrift
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
 depends: { \
   libboost-algorithm \
   libboost-foreach \
@@ -32,5 +33,15 @@ libevent
 \
 depends: libssl ^1.1.1    ? ($config.libthrift.openssl)
 depends: libz ^1.2.1200   ? ($config.libthrift.zlib)
-tests: libthrift-tests == $
 requires: c++11
+
+tests: libthrift-tests == $
+
+optional-build-config:
+\
+config.libthrift.openssl=true
+config.libthrift.libevent=true
+config.libthrift.zlib=true
+;
+Test with optional features enabled.
+\

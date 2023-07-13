@@ -1,13 +1,13 @@
 : 1
 name: thrift
-version: 0.17.0+3
+version: 0.17.0+4
 summary: Apache Thrift compiler
 license: Apache-2.0
 description-file: README.md
 url: https://thrift.apache.org/
 package-url: https://github.com/build2-packaging/thrift
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
 depends: * byacc >= 20210808
 depends: * reflex >= 20210808
 requires: host
