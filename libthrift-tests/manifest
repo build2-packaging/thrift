@@ -19,7 +19,7 @@ depends: { \
   libboost-test \
   libboost-random \
   libboost-thread \
-} ~1.81.0
+} ^1.81.0
 requires: c++11
 
 depends: * thrift == $
