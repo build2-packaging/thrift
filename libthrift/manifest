@@ -1,6 +1,6 @@
 : 1
 name: libthrift
-version: 0.17.0+4
+version: 0.17.0+5
 project: thrift
 summary: Apache Thrift C++ library
 license: Apache-2.0
@@ -18,7 +18,7 @@ depends: { \
   libboost-numeric-conversion \
   libboost-scope-exit \
   libboost-tokenizer \
-} ~1.81.0
+} ^1.81.0
 depends:
 \
 libevent
