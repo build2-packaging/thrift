@@ -178,6 +178,17 @@ if ($cxx.target.system == 'freebsd')
   }
 }
 
+# Work around min/max macros from winsock2.h messing up boost/locale.hpp
+# (upstream fixed this properly in src/thrift/protocol/TProtocol.h).
+#
+if ($cxx.target.class == 'windows')
+{
+  src/thrift/protocol/obj{TJSONProtocol}:
+  {
+    cxx.poptions += -DNOMINMAX
+  }
+}
+
 # The library use the "export all symbols" mechanism for functions and the
 # explicit dllexport/dllimport for a few global variables (which cannot be
 # auto-imported) in the main library; see thrift_export.h for details. Note
